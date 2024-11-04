@@ -1,0 +1,14 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "c:\\users\\person\\desktop\\abertayomg\\cmp304\\ai_behaviourtrees_npc\\myproject\\source\\myproject\\myproject.cpp",
+        "ProvidedModule": "",
+        "PCH": "c:\\users\\person\\desktop\\abertayomg\\cmp304\\ai_behaviourtrees_npc\\myproject\\intermediate\\build\\win64\\x64\\myprojecteditor\\development\\unrealed\\sharedpch.unrealed.project.valapi.cpp20.h.pch",
+        "Includes": [
+            "c:\\users\\person\\desktop\\abertayomg\\cmp304\\ai_behaviourtrees_npc\\myproject\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\myproject\\definitions.myproject.h",
+            "c:\\users\\person\\desktop\\abertayomg\\cmp304\\ai_behaviourtrees_npc\\myproject\\source\\myproject\\myproject.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}
