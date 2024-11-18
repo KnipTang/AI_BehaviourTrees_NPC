@@ -4,28 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "CPP_MainPlayer.generated.h"
+#include "CPP_NPC.generated.h"
 
-UCLASS(Blueprintable)
-class UE5_AI_BT_NPC_API ACPP_MainPlayer : public ACharacter
+class CPP_BehaviourTree;
+
+UCLASS()
+class UE5_AI_BT_NPC_API ACPP_NPC : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	ACPP_MainPlayer();
+	ACPP_NPC();
+	~ACPP_NPC();
 
-	UFUNCTION(BlueprintCallable)
-		void MovRight(float inputValue);
-	UFUNCTION(BlueprintCallable)
-    	void MovForward(float inputValue);
-	UFUNCTION(BlueprintCallable)
-		void Turn(float inputValue);
-	UFUNCTION(BlueprintCallable)
-		void LookUp(float inputValue);
-
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<AActor> actorBPToSpawn;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -36,4 +28,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+private:
+	CPP_BehaviourTree* m_BehaviourTree;
 };
