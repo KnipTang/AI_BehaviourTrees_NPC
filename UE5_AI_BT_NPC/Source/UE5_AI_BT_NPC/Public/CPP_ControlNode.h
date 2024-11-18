@@ -13,6 +13,6 @@ public:
 	
 	void AddChild(CPP_BaseNode* child);
 	void RemoveChild(CPP_BaseNode* child);
-private:
+protected:
 	TArray<CPP_BaseNode*> m_Children;
 };

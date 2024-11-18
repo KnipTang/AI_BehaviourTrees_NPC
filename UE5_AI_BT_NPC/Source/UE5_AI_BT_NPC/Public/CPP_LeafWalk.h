@@ -8,7 +8,7 @@
 /**
  * 
  */
-class UE5_AI_BT_NPC_API CPP_LeafWalk : public CPP_LeafNode
+class UE5_AI_BT_NPC_API CPP_LeafWalk final : public CPP_LeafNode
 {
 public:
 	CPP_LeafWalk(ACPP_NPC* npc);

@@ -14,5 +14,5 @@ CPP_LeafWalk::~CPP_LeafWalk()
 
 void CPP_LeafWalk::ExecuteNode()
 {
-	UE_LOG(LogTemp, Log, TEXT("working!"));
+	UE_LOG(LogTemp, Log, TEXT("working! This pointer address: %p"), this);
 }
