@@ -1,19 +1,32 @@
 #include "CPP_NPC.h"
 #include "CPP_LeafWalk.h"
 #include "CPP_SequenceNode.h"
+#include "CPP_SelectorNode.h"
 #include "CPP_BehaviourTree.h"
+
+bool isTrue()
+{
+	return true;
+}
+
+bool isFalse()
+{
+	return false;
+}
+
 
 ACPP_NPC::ACPP_NPC()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	CPP_SequenceNode* rootNode = new CPP_SequenceNode(this);
+	CPP_SelectorNode* selectNode = new CPP_SelectorNode(this);
 	CPP_LeafWalk* leafNode1 = new CPP_LeafWalk(this);
 	CPP_LeafWalk* leafNode2 = new CPP_LeafWalk(this);
 	CPP_LeafWalk* leafNode3 = new CPP_LeafWalk(this);
-	rootNode->AddChild(leafNode1);
-	rootNode->AddChild(leafNode2);
-	rootNode->AddChild(leafNode3);
-	m_BehaviourTree = new CPP_BehaviourTree{rootNode};
+	selectNode->AddChild(leafNode1, isTrue);
+	selectNode->AddChild(leafNode2, isTrue);
+	selectNode->AddChild(leafNode3, isFalse);
+	m_BehaviourTree = new CPP_BehaviourTree{selectNode};
 }
 
 ACPP_NPC::~ACPP_NPC()
