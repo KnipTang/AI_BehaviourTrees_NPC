@@ -8,7 +8,7 @@ class UE5_AI_BT_NPC_API CPP_BaseNode
 {
 public:
 	CPP_BaseNode(ACPP_NPC* npc);
-	~CPP_BaseNode();
+	virtual ~CPP_BaseNode();
 
 	virtual void ExecuteNode() = 0;
 

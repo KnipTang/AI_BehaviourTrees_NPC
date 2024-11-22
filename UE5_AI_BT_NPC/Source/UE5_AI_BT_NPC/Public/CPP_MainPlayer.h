@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "CPP_MainPlayer.generated.h"
 
+class CPP_BehaviourTree;
+
 UCLASS(Blueprintable)
 class UE5_AI_BT_NPC_API ACPP_MainPlayer : public ACharacter
 {
@@ -24,8 +26,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void LookUp(float inputValue);
 
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<AActor> actorBPToSpawn;
+	UFUNCTION(BlueprintCallable)
+		void GetMaterialUnder();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -36,4 +38,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+private:
+	float m_Speed;
 };

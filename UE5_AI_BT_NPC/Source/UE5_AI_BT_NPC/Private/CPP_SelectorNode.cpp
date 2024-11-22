@@ -11,36 +11,28 @@ CPP_SelectorNode::~CPP_SelectorNode()
 
 void CPP_SelectorNode::ExecuteNode()
 {
-	for (auto child : m_Children)
+	int i = 0;
+	for (auto&& child : m_Children)
 	{
-		bool conditionResult = child.second();
+		bool conditionResult = child.Value();
 	
 		if(conditionResult)
-			child.first->ExecuteNode();
+		{
+			child.Key->ExecuteNode();
+			return;
+		}
+
+		i++;
 	}
 }
 
-void CPP_SelectorNode::AddChild(CPP_BaseNode* child, TFunction<bool()> childCondition)
-{
-	if(child != nullptr)
-	{
-		BaseAndCondition newChild = BaseAndCondition(child, childCondition);
-		m_Children.Emplace(newChild);
-	}
-}
+
 
 void CPP_SelectorNode::RemoveChild(CPP_BaseNode* child)
 {
 	if(child != nullptr)
 	{
-		for (int32 Index = 0; Index < m_Children.Num(); ++Index)
-		{
-			if (m_Children[Index].first == child) 
-			{
-				m_Children.RemoveAt(Index);
-				return;
-			}
-		}
+		m_Children.Remove(child);
 	}
 }
 

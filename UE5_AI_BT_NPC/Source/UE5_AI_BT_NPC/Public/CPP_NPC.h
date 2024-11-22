@@ -29,6 +29,17 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materials")
+	UMaterialInterface* m_RoadMaterial; 
+	
+private:
+	UMaterialInterface* GetMaterial(FVector start, FVector end); 
+	void SetCurrentLookAtMaterial();
 private:
 	CPP_BehaviourTree* m_BehaviourTree;
+	TWeakObjectPtr<UMaterialInterface> m_CurrentLeftMaterial;
+	TWeakObjectPtr<UMaterialInterface> m_CurrentRightMaterial;
+
+	FVector m_EndLeftRay;
+	FVector m_EndRightRay;
 };
