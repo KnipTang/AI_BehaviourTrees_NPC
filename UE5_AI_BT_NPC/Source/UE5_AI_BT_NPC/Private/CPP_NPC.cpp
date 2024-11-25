@@ -26,7 +26,7 @@ bool isSeeingRoad(TWeakObjectPtr<UMaterialInterface> mat)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Mat: %s"), *mat->GetName());
 	}
-	if(mat->GetName() == "road")
+	if(mat->GetName() == "road" || mat->GetName() == "MAT_Allowed")
 		return true;
 	return false;
 }
