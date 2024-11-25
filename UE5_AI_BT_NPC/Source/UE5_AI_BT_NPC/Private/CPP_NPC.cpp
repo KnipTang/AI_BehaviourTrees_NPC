@@ -1,5 +1,7 @@
 #include "CPP_NPC.h"
 #include "CPP_LeafWalk.h"
+#include "CPP_LeafDriveLeft.h"
+#include "CPP_LeafDriveRight.h"
 #include "CPP_SequenceNode.h"
 #include "CPP_SelectorNode.h"
 #include "CPP_BehaviourTree.h"
@@ -14,24 +16,47 @@ bool isFalse(bool value)
 	return value;
 }
 
-bool isSeeingRoad(UMaterialInterface& mat)
+bool isSeeingRoad(TWeakObjectPtr<UMaterialInterface> mat)
 {
-	if(mat.GetName() == "road")
+	if (!mat.IsValid())
+		return false;
+	if (mat.IsValid())
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Mat: %s"), *mat->GetName());
+	}
+	if(mat->GetName() == "road")
 		return true;
 	return false;
+}
+
+bool isSeeingRoadBoth(TWeakObjectPtr<UMaterialInterface> mat, TWeakObjectPtr<UMaterialInterface> mat2)
+{
+	return isSeeingRoad(mat) && isSeeingRoad(mat2);
 }
 
 ACPP_NPC::ACPP_NPC()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	SetCurrentLookAtMaterial();
+	
 	CPP_SequenceNode* sequenceNode = new CPP_SequenceNode(this);
 	CPP_SelectorNode* selectNode = new CPP_SelectorNode(this);
-	CPP_LeafWalk* leafNode1 = new CPP_LeafWalk(this);
-	CPP_LeafWalk* leafNode2 = new CPP_LeafWalk(this);
-	CPP_LeafWalk* leafNode3 = new CPP_LeafWalk(this);
-	sequenceNode->AddChild(leafNode1);
-	selectNode->AddChild(sequenceNode, []() { return isFalse(false); });
-	selectNode->AddChild(sequenceNode, isTrue);
+	CPP_LeafWalk* walkLeaf = new CPP_LeafWalk(this);
+	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this);
+	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this);
+	selectNode->AddChild(walkLeaf,
+		[this](){
+			return isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
+		});
+	selectNode->AddChild(driveLeftLeaf,
+	[this](){
+		return !isSeeingRoad(m_CurrentRightMaterial);
+	});
+	selectNode->AddChild(driveRightLeaf,
+	[this](){
+		return !isSeeingRoad(m_CurrentLeftMaterial);
+	});
 	//selectNode->AddChild(leafNode2, isTrue);
 	//selectNode->AddChild(leafNode3, isFalse);
 	m_BehaviourTree = new CPP_BehaviourTree{selectNode};
@@ -97,7 +122,7 @@ UMaterialInterface* ACPP_NPC::GetMaterial(FVector start, FVector end)
 			HitMaterial = HitComponent->GetMaterial(0);
 			if (HitMaterial)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Hit Material: %s"), *HitMaterial->GetName());
+				//UE_LOG(LogTemp, Warning, TEXT("Hit Material: %s"), *HitMaterial->GetName());
 			}
 		}
 		else
@@ -115,7 +140,7 @@ UMaterialInterface* ACPP_NPC::GetMaterial(FVector start, FVector end)
 
 void ACPP_NPC::SetCurrentLookAtMaterial()
 {
-	float rayLength = 300.f;
+	float rayLength = 500.f;
 	
 	FVector Start = GetActorLocation();
 	FVector ForwardVector = GetActorForwardVector();

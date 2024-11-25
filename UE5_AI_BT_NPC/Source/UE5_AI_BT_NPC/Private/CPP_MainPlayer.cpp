@@ -11,7 +11,7 @@ ACPP_MainPlayer::ACPP_MainPlayer()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	m_Speed = 100;
+	m_Speed = 500;
 	
 	GetMaterialUnder();
 }
@@ -58,17 +58,17 @@ void ACPP_MainPlayer::GetMaterialUnder()
 				UMaterialInterface* HitMaterial = HitComponent->GetMaterial(0);
 				if (HitMaterial)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Hit Material: %s"), *HitMaterial->GetName());
+					//UE_LOG(LogTemp, Warning, TEXT("Hit Material: %s"), *HitMaterial->GetName());
 				}
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("No component found on hit."));
+			//UE_LOG(LogTemp, Warning, TEXT("No component found on hit."));
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No hit detected."));
+		//UE_LOG(LogTemp, Warning, TEXT("No hit detected."));
 	}
 }
 
@@ -99,13 +99,19 @@ void ACPP_MainPlayer::MovRight(float inputValue)
 
 void ACPP_MainPlayer::MovForward(float inputValue)
 {
+	FVector rightDir = GetActorRightVector();
 	FVector forwardDir = GetActorForwardVector();
-	AddMovementInput(forwardDir, inputValue * m_Speed);
+	FVector movementDir = forwardDir + rightDir;
+
+	movementDir.Normalize();
+	//FVector forwardDir = GetActorForwardVector();
+	AddMovementInput(movementDir, inputValue * m_Speed);
 }
 
 void ACPP_MainPlayer::Turn(float inputValue)
 {
 	AddControllerYawInput(inputValue);
+	//UE_LOG(LogTemp, Warning, TEXT("Turn Input Value: %f"), inputValue);
 }
 
 void ACPP_MainPlayer::LookUp(float inputValue)
