@@ -7,6 +7,7 @@
 #include "CPP_NPC.generated.h"
 
 class CPP_BehaviourTree;
+class CPP_EvaluateNPC;
 
 UCLASS()
 class UE5_AI_BT_NPC_API ACPP_NPC : public ACharacter
@@ -30,16 +31,23 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materials")
-	UMaterialInterface* m_RoadMaterial; 
+	UMaterialInterface* m_RoadMaterial;
+	UFUNCTION(BlueprintCallable)
+	void StartDriving();
 	
 private:
 	UMaterialInterface* GetMaterial(FVector start, FVector end); 
 	void SetCurrentLookAtMaterial();
+
 private:
 	CPP_BehaviourTree* m_BehaviourTree;
 	TWeakObjectPtr<UMaterialInterface> m_CurrentLeftMaterial;
 	TWeakObjectPtr<UMaterialInterface> m_CurrentRightMaterial;
 
+	CPP_EvaluateNPC* m_EvaluateNPC;
+	
 	FVector m_EndLeftRay;
 	FVector m_EndRightRay;
+
+	bool m_Driving;
 };

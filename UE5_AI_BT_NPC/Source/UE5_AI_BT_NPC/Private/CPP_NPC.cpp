@@ -5,7 +5,9 @@
 #include "CPP_SequenceNode.h"
 #include "CPP_SelectorNode.h"
 #include "CPP_BehaviourTree.h"
-
+#include "CPP_EvaluateNPC.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 bool isTrue()
 {
 	return true;
@@ -60,6 +62,8 @@ ACPP_NPC::ACPP_NPC()
 	//selectNode->AddChild(leafNode2, isTrue);
 	//selectNode->AddChild(leafNode3, isFalse);
 	m_BehaviourTree = new CPP_BehaviourTree{selectNode};
+
+	m_EvaluateNPC = new CPP_EvaluateNPC{};
 }
 
 ACPP_NPC::~ACPP_NPC()
@@ -69,20 +73,34 @@ ACPP_NPC::~ACPP_NPC()
 void ACPP_NPC::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (GetCharacterMovement())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed set to: %f"), GetCharacterMovement()->MaxWalkSpeed);
+		GetCharacterMovement()->MaxWalkSpeed = 3000.f;
+	}
 }
 
 void ACPP_NPC::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	SetCurrentLookAtMaterial();
-	m_BehaviourTree->ExecuteTree();
+
+	if(m_Driving)
+	{
+		SetCurrentLookAtMaterial();
+		m_BehaviourTree->ExecuteTree();
+		m_EvaluateNPC->AddTrackTimer(DeltaTime);
+	}
 }
 
 void ACPP_NPC::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
 
+void ACPP_NPC::StartDriving()
+{
+	m_Driving = !m_Driving;
 }
 
 UMaterialInterface* ACPP_NPC::GetMaterial(FVector start, FVector end)

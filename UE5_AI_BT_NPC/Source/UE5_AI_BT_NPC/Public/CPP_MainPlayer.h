@@ -25,9 +25,6 @@ public:
 		void Turn(float inputValue);
 	UFUNCTION(BlueprintCallable)
 		void LookUp(float inputValue);
-
-	UFUNCTION(BlueprintCallable)
-		void GetMaterialUnder();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
