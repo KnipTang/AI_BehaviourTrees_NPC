@@ -9,7 +9,10 @@ class UE5_AI_BT_NPC_API CPP_BehaviourTree
 {
 public:
 	CPP_BehaviourTree(CPP_BaseNode* rootNode);
+	CPP_BehaviourTree();
 	~CPP_BehaviourTree();
+
+	void SetRootNode(CPP_BaseNode* rootNode) { m_RootNode = rootNode; };
 	
 	void ExecuteTree();
 

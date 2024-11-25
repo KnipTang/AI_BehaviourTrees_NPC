@@ -42,26 +42,7 @@ ACPP_NPC::ACPP_NPC()
 
 	SetCurrentLookAtMaterial();
 	
-	CPP_SequenceNode* sequenceNode = new CPP_SequenceNode(this);
-	CPP_SelectorNode* selectNode = new CPP_SelectorNode(this);
-	CPP_LeafWalk* walkLeaf = new CPP_LeafWalk(this);
-	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this);
-	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this);
-	selectNode->AddChild(walkLeaf,
-		[this](){
-			return isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
-		});
-	selectNode->AddChild(driveLeftLeaf,
-	[this](){
-		return !isSeeingRoad(m_CurrentRightMaterial);
-	});
-	selectNode->AddChild(driveRightLeaf,
-	[this](){
-		return !isSeeingRoad(m_CurrentLeftMaterial);
-	});
-	//selectNode->AddChild(leafNode2, isTrue);
-	//selectNode->AddChild(leafNode3, isFalse);
-	m_BehaviourTree = new CPP_BehaviourTree{selectNode};
+	m_BehaviourTree = new CPP_BehaviourTree{};
 
 	m_EvaluateNPC = new CPP_EvaluateNPC{};
 }
@@ -79,6 +60,8 @@ void ACPP_NPC::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed set to: %f"), GetCharacterMovement()->MaxWalkSpeed);
 		GetCharacterMovement()->MaxWalkSpeed = 3000.f;
 	}
+
+	SetNPCType(NPCType::Basic2Lines);
 }
 
 void ACPP_NPC::Tick(float DeltaTime)
@@ -101,6 +84,16 @@ void ACPP_NPC::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void ACPP_NPC::StartDriving()
 {
 	m_Driving = !m_Driving;
+}
+
+void ACPP_NPC::SetNPCType(NPCType npcType)
+{
+	switch (npcType)
+	{
+	case NPCType::Basic2Lines:
+		m_BehaviourTree->SetRootNode(NPCtype_Basic2Line());
+		break;
+	}
 }
 
 UMaterialInterface* ACPP_NPC::GetMaterial(FVector start, FVector end)
@@ -171,4 +164,26 @@ void ACPP_NPC::SetCurrentLookAtMaterial()
 
 	m_CurrentLeftMaterial = MakeWeakObjectPtr(GetMaterial(Start, m_EndLeftRay));
 	m_CurrentRightMaterial = MakeWeakObjectPtr(GetMaterial(Start, m_EndRightRay));
+}
+
+CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
+{
+	CPP_SelectorNode* selectNode = new CPP_SelectorNode(this);
+	CPP_LeafWalk* walkLeaf = new CPP_LeafWalk(this);
+	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this);
+	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this);
+	selectNode->AddChild(walkLeaf,
+		[this](){
+			return isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
+		});
+	selectNode->AddChild(driveLeftLeaf,
+	[this](){
+		return !isSeeingRoad(m_CurrentRightMaterial);
+	});
+	selectNode->AddChild(driveRightLeaf,
+	[this](){
+		return !isSeeingRoad(m_CurrentLeftMaterial);
+	});
+
+	return selectNode;
 }

@@ -8,12 +8,19 @@
 
 class CPP_BehaviourTree;
 class CPP_EvaluateNPC;
+class CPP_BaseNode;
 
+UENUM(BlueprintType)
+enum class NPCType : uint8
+{
+	Basic2Lines UMETA(DisplayName = "Basic2Lines")
+};
 UCLASS()
 class UE5_AI_BT_NPC_API ACPP_NPC : public ACharacter
 {
 	GENERATED_BODY()
-
+	
+	
 public:
 	// Sets default values for this character's properties
 	ACPP_NPC();
@@ -34,11 +41,13 @@ public:
 	UMaterialInterface* m_RoadMaterial;
 	UFUNCTION(BlueprintCallable)
 	void StartDriving();
-	
+	UFUNCTION(BlueprintCallable, Category = "NPC Functions")
+	void SetNPCType(NPCType npcType);
 private:
 	UMaterialInterface* GetMaterial(FVector start, FVector end); 
 	void SetCurrentLookAtMaterial();
 
+	CPP_BaseNode* NPCtype_Basic2Line();
 private:
 	CPP_BehaviourTree* m_BehaviourTree;
 	TWeakObjectPtr<UMaterialInterface> m_CurrentLeftMaterial;

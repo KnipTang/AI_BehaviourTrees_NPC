@@ -7,6 +7,10 @@ CPP_BehaviourTree::CPP_BehaviourTree(CPP_BaseNode* rootNode) :
 {
 }
 
+CPP_BehaviourTree::CPP_BehaviourTree()
+{
+}
+
 CPP_BehaviourTree::~CPP_BehaviourTree()
 {
 }
