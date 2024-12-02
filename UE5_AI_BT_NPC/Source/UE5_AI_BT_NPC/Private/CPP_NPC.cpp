@@ -55,6 +55,8 @@ void ACPP_NPC::BeginPlay()
 {
 	Super::BeginPlay();
 
+	m_RayLength = 500;
+
 	if (GetCharacterMovement())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed set to: %f"), GetCharacterMovement()->MaxWalkSpeed);
@@ -67,10 +69,13 @@ void ACPP_NPC::BeginPlay()
 void ACPP_NPC::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	if(m_Driving)
 	{
-		SetCurrentLookAtMaterial();
+		//SetCurrentLookAtMaterial();
+		FVector Start = GetActorLocation();
+		m_CurrentLeftMaterial = MakeWeakObjectPtr(GetMaterial(Start, m_EndLeftRay));
+		m_CurrentRightMaterial = MakeWeakObjectPtr(GetMaterial(Start, m_EndRightRay));
 		m_BehaviourTree->ExecuteTree();
 		m_EvaluateNPC->AddTrackTimer(DeltaTime);
 	}
@@ -115,7 +120,7 @@ UMaterialInterface* ACPP_NPC::GetMaterial(FVector start, FVector end)
 	DrawDebugLine(
 		GetWorld(),
 		start,
-		end,
+		HitResult.Location,
 		LineColor,
 		false, 
 		2.0f,  
@@ -151,16 +156,14 @@ UMaterialInterface* ACPP_NPC::GetMaterial(FVector start, FVector end)
 
 void ACPP_NPC::SetCurrentLookAtMaterial()
 {
-	float rayLength = 500.f;
-	
 	FVector Start = GetActorLocation();
 	FVector ForwardVector = GetActorForwardVector();
 	FVector RightVector = GetActorRightVector();
 	FVector DownwardVector = FVector(0.0f, 0.0f, -1.0f);
 	FVector LeftDownwardVector = (RightVector * -1.0f + DownwardVector * 0.7f).GetSafeNormal();
-	m_EndLeftRay = Start + ForwardVector * rayLength + LeftDownwardVector * rayLength;
+	m_EndLeftRay = Start + ForwardVector * m_RayLength + LeftDownwardVector * m_RayLength;
 	FVector RightDownwardVector = (RightVector * 1.0f + DownwardVector * 0.7f).GetSafeNormal();
-	m_EndRightRay = Start + ForwardVector * rayLength + RightDownwardVector * rayLength;
+	m_EndRightRay = Start + ForwardVector * m_RayLength + RightDownwardVector * m_RayLength;
 
 	m_CurrentLeftMaterial = MakeWeakObjectPtr(GetMaterial(Start, m_EndLeftRay));
 	m_CurrentRightMaterial = MakeWeakObjectPtr(GetMaterial(Start, m_EndRightRay));

@@ -48,15 +48,20 @@ private:
 	void SetCurrentLookAtMaterial();
 
 	CPP_BaseNode* NPCtype_Basic2Line();
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rays")
+	FVector m_EndLeftRay;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rays")
+	FVector m_EndRightRay;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rays")
+	float m_RayLength;
 private:
 	CPP_BehaviourTree* m_BehaviourTree;
 	TWeakObjectPtr<UMaterialInterface> m_CurrentLeftMaterial;
 	TWeakObjectPtr<UMaterialInterface> m_CurrentRightMaterial;
 
 	CPP_EvaluateNPC* m_EvaluateNPC;
-	
-	FVector m_EndLeftRay;
-	FVector m_EndRightRay;
 
+	
 	bool m_Driving;
 };
