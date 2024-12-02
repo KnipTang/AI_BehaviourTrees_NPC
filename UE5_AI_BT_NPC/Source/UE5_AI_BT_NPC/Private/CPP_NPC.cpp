@@ -54,9 +54,7 @@ ACPP_NPC::~ACPP_NPC()
 void ACPP_NPC::BeginPlay()
 {
 	Super::BeginPlay();
-
-	m_RayLength = 500;
-
+	
 	if (GetCharacterMovement())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed set to: %f"), GetCharacterMovement()->MaxWalkSpeed);
@@ -79,6 +77,13 @@ void ACPP_NPC::Tick(float DeltaTime)
 		m_BehaviourTree->ExecuteTree();
 		m_EvaluateNPC->AddTrackTimer(DeltaTime);
 	}
+
+	if(debugLines)
+	{
+		m_CurrentLeftMaterial = MakeWeakObjectPtr(GetMaterial( GetActorLocation(), m_EndLeftRay));
+		m_CurrentRightMaterial = MakeWeakObjectPtr(GetMaterial( GetActorLocation(), m_EndRightRay));
+	}
+		
 }
 
 void ACPP_NPC::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

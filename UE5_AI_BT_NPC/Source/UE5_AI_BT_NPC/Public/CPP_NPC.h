@@ -55,6 +55,9 @@ protected:
 	FVector m_EndRightRay;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rays")
 	float m_RayLength;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rays")
+	bool debugLines;
 private:
 	CPP_BehaviourTree* m_BehaviourTree;
 	TWeakObjectPtr<UMaterialInterface> m_CurrentLeftMaterial;
