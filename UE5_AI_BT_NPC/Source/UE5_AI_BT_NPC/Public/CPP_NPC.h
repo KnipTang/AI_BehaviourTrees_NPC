@@ -44,6 +44,8 @@ public:
 	void StartDriving();
 	UFUNCTION(BlueprintCallable, Category = "NPC Functions")
 	void SetNPCType(NPCType npcType);
+
+	float GetRotationAngle() {return m_RotationAngle;}
 private:
 	FHitResult* GetHitResult(FVector start, FVector end); 
 	void SetCurrentLookAtMaterial();
@@ -63,7 +65,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Settings")
 	bool m_Driving;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Settings")
-	float m_Speed;
+	float m_Speed = 2000;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Settings")
+	float m_RotationAngle = 30;
 private:
 	CPP_BehaviourTree* m_BehaviourTree;
 	TWeakObjectPtr<UMaterialInterface> m_CurrentLeftMaterial;

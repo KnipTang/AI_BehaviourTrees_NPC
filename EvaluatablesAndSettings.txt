@@ -1,0 +1,10 @@
+Changeable Settings
+	Rotation Angle
+	Speed
+	line cast end position
+
+Evaluating
+	complete course time
+	Amount of time hit wall/Side of track
+	Total amount of turned degrees
+	

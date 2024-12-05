@@ -123,6 +123,8 @@ FHitResult* ACPP_NPC::GetHitResult(FVector start, FVector end)
 	);
 
 	FColor LineColor = bHit ? FColor::Green : FColor::Red;
+	if(LineColor == FColor::Red)
+		LineColor = FColor::Green;
 	DrawDebugLine(
 		GetWorld(),
 		start,
@@ -156,18 +158,26 @@ void ACPP_NPC::SetCurrentLookAtMaterial()
 CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
 {
 	CPP_SelectorNode* selectNode = new CPP_SelectorNode(this);
+	CPP_SequenceNode *sequenceNodeDriveleft = new CPP_SequenceNode(this);
+	CPP_SequenceNode *sequenceNodeDriveRight = new CPP_SequenceNode(this);
 	CPP_LeafWalk* walkLeaf = new CPP_LeafWalk(this);
 	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this);
 	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this);
+
+	sequenceNodeDriveleft->AddChild(walkLeaf);
+	sequenceNodeDriveleft->AddChild(driveLeftLeaf);
+	sequenceNodeDriveRight->AddChild(walkLeaf);
+	sequenceNodeDriveRight->AddChild(driveRightLeaf);
+	
 	selectNode->AddChild(walkLeaf,
 		[this](){
 			return isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
 		});
-	selectNode->AddChild(driveLeftLeaf,
+	selectNode->AddChild(sequenceNodeDriveleft,
 	[this](){
 		return !isSeeingRoad(m_CurrentRightMaterial);
 	});
-	selectNode->AddChild(driveRightLeaf,
+	selectNode->AddChild(sequenceNodeDriveRight,
 	[this](){
 		return !isSeeingRoad(m_CurrentLeftMaterial);
 	});
@@ -182,10 +192,17 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
 CPP_BaseNode* ACPP_NPC::NPCtype_MiddleDriver()
 {
 	CPP_SelectorNode* selectNode = new CPP_SelectorNode(this);
+	CPP_SequenceNode *sequenceNodeDriveleft = new CPP_SequenceNode(this);
+	CPP_SequenceNode *sequenceNodeDriveRight = new CPP_SequenceNode(this);
 	CPP_LeafWalk* walkLeaf = new CPP_LeafWalk(this);
 	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this);
 	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this);
 
+	sequenceNodeDriveleft->AddChild(driveLeftLeaf);
+	sequenceNodeDriveleft->AddChild(walkLeaf);
+	sequenceNodeDriveRight->AddChild(driveRightLeaf);
+	sequenceNodeDriveRight->AddChild(walkLeaf);
+	
 	float CurrentTurn = 0.0f;
 	
 	selectNode->AddChild(walkLeaf,
@@ -203,7 +220,7 @@ CPP_BaseNode* ACPP_NPC::NPCtype_MiddleDriver()
 		}
 		return false;
 	});
-	selectNode->AddChild(driveLeftLeaf,
+	selectNode->AddChild(sequenceNodeDriveleft,
 	[this, &CurrentTurn](){
 		if (m_CurrentHitResultLeft.IsSet() && m_CurrentHitResultRight.IsSet())
 		{
@@ -216,7 +233,7 @@ CPP_BaseNode* ACPP_NPC::NPCtype_MiddleDriver()
 		}
 		return false;
 		});
-	selectNode->AddChild(driveRightLeaf,
+	selectNode->AddChild(sequenceNodeDriveRight,
 	[this, &CurrentTurn](){
 		  if (m_CurrentHitResultLeft.IsSet() && m_CurrentHitResultRight.IsSet())
 		  {
