@@ -13,7 +13,8 @@ class CPP_BaseNode;
 UENUM(BlueprintType)
 enum class NPCType : uint8
 {
-	Basic2Lines UMETA(DisplayName = "Basic2Lines")
+	Basic2Lines UMETA(DisplayName = "Basic2Lines"),
+	MiddleDriver UMETA(DisplayName = "MiddleDriver")
 };
 UCLASS()
 class UE5_AI_BT_NPC_API ACPP_NPC : public ACharacter
@@ -44,10 +45,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "NPC Functions")
 	void SetNPCType(NPCType npcType);
 private:
-	UMaterialInterface* GetMaterial(FVector start, FVector end); 
+	FHitResult* GetHitResult(FVector start, FVector end); 
 	void SetCurrentLookAtMaterial();
 
 	CPP_BaseNode* NPCtype_Basic2Line();
+	CPP_BaseNode* NPCtype_MiddleDriver();
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rays")
 	FVector m_EndLeftRay;
@@ -60,11 +62,16 @@ protected:
 	bool debugLines;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Settings")
 	bool m_Driving;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Settings")
+	float m_Speed;
 private:
 	CPP_BehaviourTree* m_BehaviourTree;
 	TWeakObjectPtr<UMaterialInterface> m_CurrentLeftMaterial;
 	TWeakObjectPtr<UMaterialInterface> m_CurrentRightMaterial;
-
+	
+	TOptional<FHitResult> m_CurrentHitResultLeft;
+	TOptional<FHitResult> m_CurrentHitResultRight;
+	
 	CPP_EvaluateNPC* m_EvaluateNPC;
 
 	
