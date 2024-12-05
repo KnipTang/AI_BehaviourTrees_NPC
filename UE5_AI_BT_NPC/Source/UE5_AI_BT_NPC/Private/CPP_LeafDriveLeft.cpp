@@ -21,7 +21,7 @@ void CPP_LeafDriveLeft::ExecuteNode()
 	movementDir.Normalize();
 	m_NPC->AddMovementInput(movementDir);
 
-	FRotator desiredRotation = m_NPC->GetActorRotation() + FRotator(0, -30, 0);
+	FRotator desiredRotation = m_NPC->GetActorRotation() + FRotator(0, -1, 0);
 	
 	m_NPC->SetActorRotation(desiredRotation);
 }

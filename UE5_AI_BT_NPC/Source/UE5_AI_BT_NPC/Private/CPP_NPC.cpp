@@ -179,51 +179,53 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
 	return selectNode;
 }
 
-bool test(TOptional<FHitResult> m_CurrentHitResultLeft, TOptional<FHitResult> m_CurrentHitResultRight)
-{
-	if (m_CurrentHitResultLeft.IsSet() && m_CurrentHitResultRight.IsSet())
-	{
-		constexpr int offset = 5;
-		float leftDistance = m_CurrentHitResultLeft.GetValue().Distance;
-		float rightDistance = m_CurrentHitResultRight.GetValue().Distance;
-		UE_LOG(LogTemp, Warning, TEXT("leftDistance: %f"), leftDistance);
-		UE_LOG(LogTemp, Warning, TEXT("rightDistance: %f"), rightDistance);
-		return FMath::Abs(leftDistance - rightDistance) <= offset;
-	}
-	UE_LOG(LogTemp, Warning, TEXT("false:"));
-	return false;
-}
-
 CPP_BaseNode* ACPP_NPC::NPCtype_MiddleDriver()
 {
 	CPP_SelectorNode* selectNode = new CPP_SelectorNode(this);
 	CPP_LeafWalk* walkLeaf = new CPP_LeafWalk(this);
 	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this);
 	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this);
-	UE_LOG(LogTemp, Warning, TEXT("HELOOO????:"));
+
+	float CurrentTurn = 0.0f;
+	
 	selectNode->AddChild(walkLeaf,
-	[this](){
-		return test(m_CurrentHitResultLeft, m_CurrentHitResultRight);
+	[this, &CurrentTurn](){
+		if (m_CurrentHitResultLeft.IsSet() && m_CurrentHitResultRight.IsSet())
+		{
+			CurrentTurn = 0.f;
+			
+			constexpr int offset = 100;
+			float leftDistance = m_CurrentHitResultLeft.GetValue().Distance;
+			float rightDistance = m_CurrentHitResultRight.GetValue().Distance;
+			UE_LOG(LogTemp, Display, TEXT("leftDistance: %f"), leftDistance);
+			UE_LOG(LogTemp, Display, TEXT("rightDistance: %f"), rightDistance);
+			return FMath::Abs(leftDistance - rightDistance) <= offset;
+		}
+		return false;
 	});
 	selectNode->AddChild(driveLeftLeaf,
-	[this](){
+	[this, &CurrentTurn](){
 		if (m_CurrentHitResultLeft.IsSet() && m_CurrentHitResultRight.IsSet())
 		{
 			float leftDistance = m_CurrentHitResultLeft.GetValue().Distance;
 			float rightDistance = m_CurrentHitResultRight.GetValue().Distance;
 
-			return leftDistance > rightDistance;
+			CurrentTurn -= 15;
+			
+			return leftDistance > rightDistance && CurrentTurn > -30;
 		}
 		return false;
 		});
 	selectNode->AddChild(driveRightLeaf,
-	[this](){
+	[this, &CurrentTurn](){
 		  if (m_CurrentHitResultLeft.IsSet() && m_CurrentHitResultRight.IsSet())
 		  {
 			  float leftDistance = m_CurrentHitResultLeft.GetValue().Distance;
 			  float rightDistance = m_CurrentHitResultRight.GetValue().Distance;
 
-			  return rightDistance > leftDistance;
+		  	  CurrentTurn += 15;
+		  	
+			  return rightDistance > leftDistance && CurrentTurn < 30;
 		  }
 		  return false;
 	});
