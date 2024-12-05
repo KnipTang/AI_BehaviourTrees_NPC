@@ -58,7 +58,7 @@ void ACPP_NPC::BeginPlay()
 	if (GetCharacterMovement())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed set to: %f"), GetCharacterMovement()->MaxWalkSpeed);
-		GetCharacterMovement()->MaxWalkSpeed = 3000.f;
+		GetCharacterMovement()->MaxWalkSpeed = 1000.f;
 	}
 
 	SetNPCType(NPCType::Basic2Lines);

@@ -58,6 +58,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rays")
 	bool debugLines;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Settings")
+	bool m_Driving;
 private:
 	CPP_BehaviourTree* m_BehaviourTree;
 	TWeakObjectPtr<UMaterialInterface> m_CurrentLeftMaterial;
@@ -66,5 +68,4 @@ private:
 	CPP_EvaluateNPC* m_EvaluateNPC;
 
 	
-	bool m_Driving;
 };
