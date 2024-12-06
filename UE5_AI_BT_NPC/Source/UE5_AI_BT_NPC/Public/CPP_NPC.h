@@ -30,7 +30,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -45,6 +45,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "NPC Functions")
 	void SetNPCType(NPCType npcType);
 
+	UFUNCTION(BlueprintCallable, Category = "NPC Functions")
+	void Finished();
+	
 	float GetRotationAngle() {return m_RotationAngle;}
 private:
 	FHitResult* GetHitResult(FVector start, FVector end); 
@@ -59,15 +62,18 @@ protected:
 	FVector m_EndRightRay;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rays")
 	float m_RayLength;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rays")
 	bool debugLines;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Settings")
 	bool m_Driving;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Settings")
 	float m_Speed = 2000;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Settings")
 	float m_RotationAngle = 30;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="NPC DATA")
+	int NPC_ID;
 private:
 	CPP_BehaviourTree* m_BehaviourTree;
 	TWeakObjectPtr<UMaterialInterface> m_CurrentLeftMaterial;
@@ -78,5 +84,5 @@ private:
 	
 	CPP_EvaluateNPC* m_EvaluateNPC;
 
-	
+	static int NPC_IS_COUNT;
 };

@@ -36,6 +36,8 @@ bool isSeeingRoadBoth(TWeakObjectPtr<UMaterialInterface> mat, TWeakObjectPtr<UMa
 	return isSeeingRoad(mat) && isSeeingRoad(mat2);
 }
 
+int ACPP_NPC::NPC_IS_COUNT = 0;
+
 ACPP_NPC::ACPP_NPC()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -43,6 +45,9 @@ ACPP_NPC::ACPP_NPC()
 	m_BehaviourTree = new CPP_BehaviourTree{};
 
 	m_EvaluateNPC = new CPP_EvaluateNPC{};
+
+	NPC_ID = NPC_IS_COUNT;
+	NPC_IS_COUNT++;
 }
 
 ACPP_NPC::~ACPP_NPC()
@@ -51,17 +56,20 @@ ACPP_NPC::~ACPP_NPC()
 
 void ACPP_NPC::BeginPlay()
 {
-	m_BehaviourTree = new CPP_BehaviourTree{};
-
-	m_EvaluateNPC = new CPP_EvaluateNPC{};
 	Super::BeginPlay();
 
+	m_EvaluateNPC->ResetFile();
 	
 	if (GetCharacterMovement())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed set to: %f"), GetCharacterMovement()->MaxWalkSpeed);
 		GetCharacterMovement()->MaxWalkSpeed = m_Speed;
 	}
+}
+
+void ACPP_NPC::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	NPC_IS_COUNT = 0;
 }
 
 void ACPP_NPC::Tick(float DeltaTime)
@@ -161,6 +169,12 @@ void ACPP_NPC::SetCurrentLookAtMaterial()
 	    if(compLeft != nullptr) m_CurrentLeftMaterial = compLeft->GetMaterial(0);
 	    if(compRight != nullptr) m_CurrentRightMaterial = compRight->GetMaterial(0);
 	}
+}
+
+void ACPP_NPC::Finished()
+{
+	FString content = FString::FromInt(NPC_ID) + TEXT("\n");
+	m_EvaluateNPC->WriteDataToFile(content);
 }
 
 CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
