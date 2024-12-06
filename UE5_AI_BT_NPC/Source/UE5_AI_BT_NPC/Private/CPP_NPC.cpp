@@ -39,7 +39,7 @@ bool isSeeingRoadBoth(TWeakObjectPtr<UMaterialInterface> mat, TWeakObjectPtr<UMa
 ACPP_NPC::ACPP_NPC()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	m_BehaviourTree = new CPP_BehaviourTree{};
 
 	m_EvaluateNPC = new CPP_EvaluateNPC{};
@@ -51,7 +51,11 @@ ACPP_NPC::~ACPP_NPC()
 
 void ACPP_NPC::BeginPlay()
 {
+	m_BehaviourTree = new CPP_BehaviourTree{};
+
+	m_EvaluateNPC = new CPP_EvaluateNPC{};
 	Super::BeginPlay();
+
 	
 	if (GetCharacterMovement())
 	{
@@ -62,12 +66,11 @@ void ACPP_NPC::BeginPlay()
 
 void ACPP_NPC::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-	
-	FVector Start = GetActorLocation();
 	
 	if(m_Driving)
 	{
+		Super::Tick(DeltaTime);
+		FVector Start = GetActorLocation();
 		m_CurrentHitResultLeft = *GetHitResult(Start, m_EndLeftRay);
 		m_CurrentHitResultRight = *GetHitResult(Start, m_EndRightRay);
 		SetCurrentLookAtMaterial();
@@ -77,6 +80,7 @@ void ACPP_NPC::Tick(float DeltaTime)
 
 	if(debugLines)
 	{
+		FVector Start = GetActorLocation();
 		m_CurrentHitResultLeft = *GetHitResult(Start, m_EndLeftRay);
 		m_CurrentHitResultRight = *GetHitResult(Start, m_EndRightRay);
 		SetCurrentLookAtMaterial();
@@ -122,19 +126,23 @@ FHitResult* ACPP_NPC::GetHitResult(FVector start, FVector end)
 		TraceParams    
 	);
 
-	FColor LineColor = bHit ? FColor::Green : FColor::Red;
-	if(LineColor == FColor::Red)
-		LineColor = FColor::Green;
-	DrawDebugLine(
-		GetWorld(),
-		start,
-		HitResult->Location,
-		LineColor,
-		false, 
-		2.0f,  
-		0,     
-		2.0f   
-	);
+	if(debugLines)
+	{
+		FColor LineColor = bHit ? FColor::Green : FColor::Red;
+		if(LineColor == FColor::Red)
+			LineColor = FColor::Green;
+			
+		DrawDebugLine(
+			GetWorld(),
+			start,
+			HitResult->Location,
+			LineColor,
+			false, 
+			2.0f,  
+			0,     
+			2.0f   
+		);
+	}
 
 	UMaterialInterface* HitMaterial{};
 	if (!bHit)
