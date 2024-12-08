@@ -46,7 +46,7 @@ public:
 	void SetNPCType(NPCType npcType);
 
 	UFUNCTION(BlueprintCallable, Category = "NPC Functions")
-	void Finished();
+	void Finished(bool finish);
 	
 	float GetRotationAngle() {return m_RotationAngle;}
 private:
@@ -55,6 +55,7 @@ private:
 
 	CPP_BaseNode* NPCtype_Basic2Line();
 	CPP_BaseNode* NPCtype_MiddleDriver();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rays")
 	FVector m_EndLeftRay;
@@ -83,6 +84,7 @@ private:
 	TOptional<FHitResult> m_CurrentHitResultRight;
 	
 	CPP_EvaluateNPC* m_EvaluateNPC;
-
+	
 	static int NPC_IS_COUNT;
+	bool m_Turning = false;
 };

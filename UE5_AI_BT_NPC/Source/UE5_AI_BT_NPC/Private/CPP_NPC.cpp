@@ -62,7 +62,6 @@ void ACPP_NPC::BeginPlay()
 	
 	if (GetCharacterMovement())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed set to: %f"), GetCharacterMovement()->MaxWalkSpeed);
 		GetCharacterMovement()->MaxWalkSpeed = m_Speed;
 	}
 }
@@ -171,9 +170,18 @@ void ACPP_NPC::SetCurrentLookAtMaterial()
 	}
 }
 
-void ACPP_NPC::Finished()
+void ACPP_NPC::Finished(bool finish)
 {
-	FString content = FString::FromInt(NPC_ID) + TEXT("\n");
+	FString content =
+		TEXT("ID: ") + FString::FromInt(NPC_ID) +
+		TEXT("\tFINISHED?: ") + FString::FromInt(finish) +
+		TEXT("\tTRACK TIME: ") + FString::FromInt(m_EvaluateNPC->GetTrackTime()) +
+		TEXT("\tBARRIER HITS: ") + FString::FromInt(m_EvaluateNPC->GetHitBarrier()) +
+		TEXT("\tROTATION ANGLE: ") + FString::FromInt(m_RotationAngle) +
+		TEXT("\tSPEED: ") + FString::FromInt(m_Speed) +
+
+		TEXT("\n");
+	
 	m_EvaluateNPC->WriteDataToFile(content);
 }
 
@@ -185,6 +193,8 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
 	CPP_LeafWalk* walkLeaf = new CPP_LeafWalk(this);
 	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this);
 	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this);
+	
+	UE_LOG(LogTemp, Warning, TEXT("TEST"));
 
 	sequenceNodeDriveleft->AddChild(walkLeaf);
 	sequenceNodeDriveleft->AddChild(driveLeftLeaf);
@@ -193,19 +203,30 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
 	
 	selectNode->AddChild(walkLeaf,
 		[this](){
+			if(m_Turning)
+			{
+				m_Turning = false;
+			}
+
 			return isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
 		});
 	selectNode->AddChild(sequenceNodeDriveleft,
 	[this](){
+		if(!m_Turning)
+		{
+			m_Turning = true;
+			m_EvaluateNPC->HitBarrier();
+		}
 		return !isSeeingRoad(m_CurrentRightMaterial);
 	});
 	selectNode->AddChild(sequenceNodeDriveRight,
 	[this](){
+		if(!m_Turning)
+		{
+			m_Turning = true;
+			m_EvaluateNPC->HitBarrier();
+		}
 		return !isSeeingRoad(m_CurrentLeftMaterial);
-	});
-	selectNode->AddChild(walkLeaf,
-	[this](){
-		return isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
 	});
 
 	return selectNode;

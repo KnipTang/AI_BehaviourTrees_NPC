@@ -14,7 +14,8 @@ public:
 
 	float GetTrackTime() const { return m_TimeTrackCompleted; };
 
-	void HitBarrier() {	m_HitBarrier++; };
+	void HitBarrier();
+	int GetHitBarrier() { return m_HitBarrier; }
 
 	void ResetFile();
 	void WriteDataToFile(const FString& Content);
