@@ -142,7 +142,7 @@ FHitResult* ACPP_NPC::GetHitResult(FVector start, FVector end)
 		DrawDebugLine(
 			GetWorld(),
 			start,
-			HitResult->Location,
+			end,
 			LineColor,
 			false, 
 			2.0f,  
@@ -179,7 +179,7 @@ void ACPP_NPC::Finished(bool finish)
 		TEXT("\tBARRIER HITS: ") + FString::FromInt(m_EvaluateNPC->GetHitBarrier()) +
 		TEXT("\tROTATION ANGLE: ") + FString::FromInt(m_RotationAngle) +
 		TEXT("\tSPEED: ") + FString::FromInt(m_Speed) +
-
+		TEXT("\tDOWN RAY: ") + FString::FromInt(m_DownRayMultiplier) +
 		TEXT("\n");
 	
 	m_EvaluateNPC->WriteDataToFile(content);

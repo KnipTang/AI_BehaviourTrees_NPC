@@ -72,6 +72,8 @@ protected:
 	float m_Speed = 2000;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Settings")
 	float m_RotationAngle = 30;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Settings")
+	float m_DownRayMultiplier = 0.7f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="NPC DATA")
 	int NPC_ID;
