@@ -37,18 +37,17 @@ void CPP_EvaluateNPC::ResetFile()
 
 void CPP_EvaluateNPC::WriteDataToFile(const FString& Content)
 {
-	FString CurrentPath = FPaths::Combine(FPaths::ProjectDir(), TEXT("Evaluation"), TEXT("NPC_Evaluation.txt"));
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 
-	IFileHandle* FileHandle = PlatformFile.OpenWrite(*CurrentPath, true);
-	if (FileHandle)
+	FString FilePath = FPaths::ProjectDir() + TEXT("Evaluation/Output.csv");
+
+	if (PlatformFile.FileExists(*FilePath))
 	{
-		const TCHAR* Data = *Content;
-		int32 Size = FCString::Strlen(Data) * sizeof(TCHAR);
-		FileHandle->Write((const uint8*)Data, Size);
-		
-		UE_LOG(LogTemp, Log, TEXT("Content Written To: %s"), *CurrentPath);
-		
-		delete FileHandle;
+		IFileHandle* FileHandle = PlatformFile.OpenWrite(*FilePath, /*bAppend=*/true);
+		if (FileHandle)
+		{
+			FileHandle->Write((const uint8*)TCHAR_TO_ANSI(*Content), Content.Len());
+			delete FileHandle;
+		}
 	}
 }

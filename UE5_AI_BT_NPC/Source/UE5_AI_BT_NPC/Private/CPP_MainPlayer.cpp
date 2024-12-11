@@ -61,3 +61,21 @@ void ACPP_MainPlayer::LookUp(float inputValue)
 {
 	AddControllerPitchInput(inputValue);
 }
+
+void ACPP_MainPlayer::WriteDataToFile(const FString& Content)
+{
+	FString CurrentPath = FPaths::Combine(FPaths::ProjectDir(), TEXT("Evaluation"), TEXT("NPC_Evaluation.txt"));
+	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+
+	IFileHandle* FileHandle = PlatformFile.OpenWrite(*CurrentPath, true);
+	if (FileHandle)
+	{
+		const TCHAR* Data = *Content;
+		int32 Size = FCString::Strlen(Data) * sizeof(TCHAR);
+		FileHandle->Write((const uint8*)Data, Size);
+		
+		UE_LOG(LogTemp, Log, TEXT("Content Written To: %s"), *CurrentPath);
+		
+		delete FileHandle;
+	}
+}

@@ -47,6 +47,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "NPC Functions")
 	void Finished(bool finish);
+
+	UFUNCTION(BlueprintCallable, Category = "NPC Functions")
+	void ResetEvaluationFile();
 	
 	float GetRotationAngle() {return m_RotationAngle;}
 private:

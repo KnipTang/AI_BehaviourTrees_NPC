@@ -25,6 +25,8 @@ public:
 		void Turn(float inputValue);
 	UFUNCTION(BlueprintCallable)
 		void LookUp(float inputValue);
+	UFUNCTION(BlueprintCallable)
+		void WriteDataToFile(const FString& Content);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

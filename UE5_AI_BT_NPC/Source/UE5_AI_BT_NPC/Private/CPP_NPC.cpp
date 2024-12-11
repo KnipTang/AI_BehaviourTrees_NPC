@@ -36,7 +36,7 @@ bool isSeeingRoadBoth(TWeakObjectPtr<UMaterialInterface> mat, TWeakObjectPtr<UMa
 	return isSeeingRoad(mat) && isSeeingRoad(mat2);
 }
 
-int ACPP_NPC::NPC_IS_COUNT = 0;
+int ACPP_NPC::NPC_IS_COUNT = -3;
 
 ACPP_NPC::ACPP_NPC()
 {
@@ -58,7 +58,7 @@ void ACPP_NPC::BeginPlay()
 {
 	Super::BeginPlay();
 
-	m_EvaluateNPC->ResetFile();
+	//m_EvaluateNPC->ResetFile();
 	
 	if (GetCharacterMovement())
 	{
@@ -68,7 +68,7 @@ void ACPP_NPC::BeginPlay()
 
 void ACPP_NPC::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	NPC_IS_COUNT = 0;
+	//NPC_IS_COUNT = 0;
 }
 
 void ACPP_NPC::Tick(float DeltaTime)
@@ -173,16 +173,21 @@ void ACPP_NPC::SetCurrentLookAtMaterial()
 void ACPP_NPC::Finished(bool finish)
 {
 	FString content =
-		TEXT("ID: ") + FString::FromInt(NPC_ID) +
-		TEXT("\tFINISHED?: ") + FString::FromInt(finish) +
-		TEXT("\tTRACK TIME: ") + FString::FromInt(m_EvaluateNPC->GetTrackTime()) +
-		TEXT("\tBARRIER HITS: ") + FString::FromInt(m_EvaluateNPC->GetHitBarrier()) +
-		TEXT("\tROTATION ANGLE: ") + FString::FromInt(m_RotationAngle) +
-		TEXT("\tSPEED: ") + FString::FromInt(m_Speed) +
-		TEXT("\tDOWN RAY: ") + FString::FromInt(m_DownRayMultiplier) +
+		FString::FromInt(NPC_ID) +
+		TEXT(",") + FString::FromInt(finish) +
+		TEXT(",") + FString::FromInt(m_EvaluateNPC->GetTrackTime()) +
+		TEXT(",") + FString::FromInt(m_EvaluateNPC->GetHitBarrier()) +
+		TEXT(",") + FString::FromInt(m_RotationAngle) +
+		TEXT(",") + FString::FromInt(m_Speed) +
+		TEXT(",") + FString::SanitizeFloat(m_DownRayMultiplier) +
 		TEXT("\n");
 	
 	m_EvaluateNPC->WriteDataToFile(content);
+}
+void ACPP_NPC::ResetEvaluationFile()
+{
+	NPC_IS_COUNT = 0;
+	m_EvaluateNPC->ResetFile();
 }
 
 CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
