@@ -1,28 +1,21 @@
 #include "CPP_ControlNode.h"
 
-CPP_ControlNode::CPP_ControlNode(ACPP_NPC* npc) :
-	CPP_BaseNode(npc)
+CPP_ControlNode::CPP_ControlNode(ACPP_NPC* npc, int type) :
+	CPP_BaseNode(npc, type)
 {
+	m_LastSelectedNode = this;
 }
 
 CPP_ControlNode::~CPP_ControlNode()
 {
 }
 
-void CPP_ControlNode::AddChild(CPP_BaseNode* child)
+void CPP_ControlNode::ChangeExecutionNode(CPP_BaseNode* child)
 {
-	if(child != nullptr)
-		m_Children.Emplace(child);
-}
-
-void CPP_ControlNode::RemoveChild(CPP_BaseNode* child)
-{
-	if(child != nullptr)
+	if(m_LastSelectedNode->m_NodeType != child->m_NodeType)
 	{
-		int32 Index = m_Children.Find(child);
-		if (Index != INDEX_NONE)
-		{
-			m_Children.RemoveAt(Index);
-		}
+		m_LastSelectedNode->EndNode();
+		child->BeginNode();
+		m_LastSelectedNode = child;
 	}
 }

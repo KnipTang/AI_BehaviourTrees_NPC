@@ -14,6 +14,7 @@ UENUM(BlueprintType)
 enum class NPCType : uint8
 {
 	Basic2Lines UMETA(DisplayName = "Basic2Lines"),
+	Basic2LinesSmart UMETA(DisplayName = "Basic2LinesSmart"),
 	MiddleDriver UMETA(DisplayName = "MiddleDriver")
 };
 UCLASS()
@@ -57,6 +58,7 @@ private:
 	void SetCurrentLookAtMaterial();
 
 	CPP_BaseNode* NPCtype_Basic2Line();
+	CPP_BaseNode* NPCtype_Basic2LineSmart();
 	CPP_BaseNode* NPCtype_MiddleDriver();
 
 protected:
@@ -92,4 +94,6 @@ private:
 	
 	static int NPC_IS_COUNT;
 	bool m_Turning = false;
+
+	float m_ContinuousRotation = 0;
 };

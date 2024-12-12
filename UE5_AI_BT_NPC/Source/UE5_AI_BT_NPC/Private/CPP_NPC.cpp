@@ -112,6 +112,9 @@ void ACPP_NPC::SetNPCType(NPCType npcType)
 	case NPCType::Basic2Lines:
 		m_BehaviourTree->SetRootNode(NPCtype_Basic2Line());
 		break;
+	case NPCType::Basic2LinesSmart:
+		m_BehaviourTree->SetRootNode(NPCtype_Basic2LineSmart());
+		break;
 	case NPCType::MiddleDriver:
 		m_BehaviourTree->SetRootNode(NPCtype_MiddleDriver());
 		break;
@@ -199,8 +202,6 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
 	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this);
 	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this);
 	
-	UE_LOG(LogTemp, Warning, TEXT("TEST"));
-
 	sequenceNodeDriveleft->AddChild(walkLeaf);
 	sequenceNodeDriveleft->AddChild(driveLeftLeaf);
 	sequenceNodeDriveRight->AddChild(walkLeaf);
@@ -233,6 +234,55 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
 		}
 		return !isSeeingRoad(m_CurrentLeftMaterial);
 	});
+
+	return selectNode;
+}
+
+CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
+{
+	CPP_SelectorNode* selectNode = new CPP_SelectorNode(this);
+	CPP_SequenceNode *sequenceNodeDriveleft = new CPP_SequenceNode(this);
+	CPP_SequenceNode *sequenceNodeDriveRight = new CPP_SequenceNode(this);
+	CPP_LeafWalk* walkLeaf = new CPP_LeafWalk(this);
+	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this);
+	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this);
+	
+	sequenceNodeDriveleft->AddChild(walkLeaf);
+	sequenceNodeDriveleft->AddChild(driveLeftLeaf);
+	sequenceNodeDriveRight->AddChild(walkLeaf);
+	sequenceNodeDriveRight->AddChild(driveRightLeaf);
+	
+	selectNode->AddChild(walkLeaf,
+		[this](){
+			if(m_Turning)
+			{
+				m_Turning = false;
+				m_ContinuousRotation = 0;
+			}
+
+			return isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
+		});
+	selectNode->AddChild(sequenceNodeDriveleft,
+	[this](){
+		if(!m_Turning)
+		{
+			m_Turning = true;
+			m_ContinuousRotation += m_RotationAngle;
+			m_EvaluateNPC->HitBarrier();
+		}
+		return !isSeeingRoad(m_CurrentRightMaterial);
+	});
+	selectNode->AddChild(sequenceNodeDriveRight,
+	[this](){
+		if(!m_Turning)
+		{
+			m_Turning = true;
+			m_ContinuousRotation += m_RotationAngle;
+			m_EvaluateNPC->HitBarrier();
+		}
+		return !isSeeingRoad(m_CurrentLeftMaterial);
+	});
+	
 
 	return selectNode;
 }

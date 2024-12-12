@@ -1,7 +1,7 @@
 #include "CPP_SequenceNode.h"
 
 CPP_SequenceNode::CPP_SequenceNode(ACPP_NPC* npc) :
-	CPP_BaseNode(npc)
+	CPP_ControlNode(npc, 1)
 {
 }
 
@@ -13,6 +13,7 @@ void CPP_SequenceNode::ExecuteNode()
 {
 	for (auto& child : m_Children)
 	{
+		ChangeExecutionNode(child);
 		child->ExecuteNode();
 	}
 }
@@ -34,4 +35,3 @@ void CPP_SequenceNode::RemoveChild(CPP_BaseNode* child)
 		}
 	}
 }
-

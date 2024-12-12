@@ -2,7 +2,7 @@
 #include "CPP_NPC.h"
 
 CPP_LeafDriveRight::CPP_LeafDriveRight(ACPP_NPC* npc) :
-	CPP_LeafNode(npc)
+	CPP_LeafNode(npc, 4)
 {
 }
 

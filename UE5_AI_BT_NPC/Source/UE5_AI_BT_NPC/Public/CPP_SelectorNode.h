@@ -1,10 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CPP_BaseNode.h"
+#include "CPP_ControlNode.h"
 #include "Containers/Map.h"
 
-class UE5_AI_BT_NPC_API CPP_SelectorNode : public CPP_BaseNode
+class CPP_LeafNode;
+class UE5_AI_BT_NPC_API CPP_SelectorNode : public CPP_ControlNode
 {
 public:
 	CPP_SelectorNode(ACPP_NPC* npc);
@@ -20,6 +21,7 @@ public:
 		}
 	}
 	void RemoveChild(CPP_BaseNode* child);
+
 private:
 	using BaseAndCondition = TMap<CPP_BaseNode*, TFunction<bool()>>;
 	BaseAndCondition m_Children;

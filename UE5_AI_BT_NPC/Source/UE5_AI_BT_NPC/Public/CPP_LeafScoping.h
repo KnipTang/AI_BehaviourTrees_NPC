@@ -3,16 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CPP_BaseNode.h"
-
+#include "CPP_LeafNode.h"
 /**
  * 
  */
-class UE5_AI_BT_NPC_API CPP_RootNode : public CPP_BaseNode
+class UE5_AI_BT_NPC_API CPP_LeafScoping final : public CPP_LeafNode
 {
 public:
-	CPP_RootNode(ACPP_NPC* npc);
-	~CPP_RootNode();
-
+	CPP_LeafScoping(ACPP_NPC* npc);
+	~CPP_LeafScoping();
+	
 	void ExecuteNode() override;
 };

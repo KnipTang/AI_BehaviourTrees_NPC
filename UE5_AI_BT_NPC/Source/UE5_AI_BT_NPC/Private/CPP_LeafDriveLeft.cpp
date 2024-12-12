@@ -3,7 +3,7 @@
 #include "GameFramework/PawnMovementComponent.h"
 
 CPP_LeafDriveLeft::CPP_LeafDriveLeft(ACPP_NPC* npc) :
-	CPP_LeafNode(npc)
+	CPP_LeafNode(npc, 5)
 {
 }
 

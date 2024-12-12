@@ -7,12 +7,14 @@ class ACPP_NPC;
 class UE5_AI_BT_NPC_API CPP_BaseNode
 {
 public:
-	CPP_BaseNode(ACPP_NPC* npc);
+	CPP_BaseNode(ACPP_NPC* npc, int type);
 	virtual ~CPP_BaseNode();
 
+	virtual void BeginNode() {};
 	virtual void ExecuteNode() = 0;
+	virtual void EndNode() {};
 
 public:
 	TWeakObjectPtr<ACPP_NPC> m_NPC;
-private:
+	int m_NodeType = 0;
 };
