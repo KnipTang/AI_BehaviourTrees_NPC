@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/SplineComponent.h"
 #include "CPP_NPC.generated.h"
-
 class CPP_BehaviourTree;
 class CPP_EvaluateNPC;
 class CPP_BaseNode;
+class USplineComponent;
 
 UENUM(BlueprintType)
 enum class NPCType : uint8
@@ -57,11 +58,13 @@ private:
 	FHitResult* GetHitResult(FVector start, FVector end); 
 	void SetCurrentLookAtMaterial();
 
+	void SetPercentageTrackCompleet();
+	
 	CPP_BaseNode* NPCtype_Basic2Line();
 	CPP_BaseNode* NPCtype_Basic2LineSmart();
 	CPP_BaseNode* NPCtype_MiddleDriver();
 
-protected:
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rays")
 	FVector m_EndLeftRay;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rays")
@@ -79,9 +82,14 @@ protected:
 	float m_RotationAngle = 30;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Settings")
 	float m_DownRayMultiplier = 0.7f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spline")
+	TWeakObjectPtr<USplineComponent> m_Spline;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="NPC DATA")
 	int NPC_ID;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="NPC DATA")
+	float m_PercentageTrackComplete;
 private:
 	CPP_BehaviourTree* m_BehaviourTree;
 	TWeakObjectPtr<UMaterialInterface> m_CurrentLeftMaterial;
@@ -94,6 +102,4 @@ private:
 	
 	static int NPC_IS_COUNT;
 	bool m_Turning = false;
-
-	float m_ContinuousRotation = 0;
 };

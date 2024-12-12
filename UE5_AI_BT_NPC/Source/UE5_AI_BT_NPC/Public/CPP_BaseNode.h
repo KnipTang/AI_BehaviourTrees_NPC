@@ -11,7 +11,7 @@ public:
 	virtual ~CPP_BaseNode();
 
 	virtual void BeginNode() {};
-	virtual void ExecuteNode() = 0;
+	virtual void ExecuteNode() {};
 	virtual void EndNode() {};
 
 public:

@@ -2,10 +2,12 @@
 #include "CPP_LeafWalk.h"
 #include "CPP_LeafDriveLeft.h"
 #include "CPP_LeafDriveRight.h"
+#include "CPP_LeafScoping.h"
 #include "CPP_SequenceNode.h"
 #include "CPP_SelectorNode.h"
 #include "CPP_BehaviourTree.h"
 #include "CPP_EvaluateNPC.h"
+#include "Components/SplineComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 bool isTrue()
@@ -77,12 +79,14 @@ void ACPP_NPC::Tick(float DeltaTime)
 	if(m_Driving)
 	{
 		Super::Tick(DeltaTime);
+		
 		FVector Start = GetActorLocation();
 		m_CurrentHitResultLeft = *GetHitResult(Start, m_EndLeftRay);
 		m_CurrentHitResultRight = *GetHitResult(Start, m_EndRightRay);
 		SetCurrentLookAtMaterial();
 		m_BehaviourTree->ExecuteTree();
 		m_EvaluateNPC->AddTrackTimer(DeltaTime);
+		SetPercentageTrackCompleet();
 	}
 
 	if(debugLines)
@@ -173,6 +177,15 @@ void ACPP_NPC::SetCurrentLookAtMaterial()
 	}
 }
 
+void ACPP_NPC::SetPercentageTrackCompleet()
+{
+	float inputKey = m_Spline->FindInputKeyClosestToWorldLocation(GetActorLocation());
+	float distance = m_Spline->GetDistanceAlongSplineAtSplineInputKey(inputKey);
+	UE_LOG(LogTemp, Log, TEXT("Distance: %f"), distance);
+	float length = m_Spline->GetSplineLength();
+	m_PercentageTrackComplete = (distance / length) * 100;
+}
+
 void ACPP_NPC::Finished(bool finish)
 {
 	FString content =
@@ -246,44 +259,47 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
 	CPP_LeafWalk* walkLeaf = new CPP_LeafWalk(this);
 	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this);
 	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this);
-	
+	CPP_LeafScoping* scopingLeaf = new CPP_LeafScoping(this);
+
 	sequenceNodeDriveleft->AddChild(walkLeaf);
 	sequenceNodeDriveleft->AddChild(driveLeftLeaf);
 	sequenceNodeDriveRight->AddChild(walkLeaf);
 	sequenceNodeDriveRight->AddChild(driveRightLeaf);
 	
-	selectNode->AddChild(walkLeaf,
-		[this](){
-			if(m_Turning)
-			{
-				m_Turning = false;
-				m_ContinuousRotation = 0;
-			}
+	m_Turning = false;
 
-			return isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
-		});
+	
+	selectNode->AddChild(walkLeaf,
+	[this](){
+		if(m_Turning)
+		{
+			m_Turning = false;
+		}
+			
+		return isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
+	});
 	selectNode->AddChild(sequenceNodeDriveleft,
 	[this](){
 		if(!m_Turning)
 		{
 			m_Turning = true;
-			m_ContinuousRotation += m_RotationAngle;
 			m_EvaluateNPC->HitBarrier();
 		}
-		return !isSeeingRoad(m_CurrentRightMaterial);
+		return !isSeeingRoad(m_CurrentRightMaterial) && isSeeingRoad(m_CurrentLeftMaterial);
 	});
 	selectNode->AddChild(sequenceNodeDriveRight,
 	[this](){
 		if(!m_Turning)
 		{
 			m_Turning = true;
-			m_ContinuousRotation += m_RotationAngle;
 			m_EvaluateNPC->HitBarrier();
 		}
-		return !isSeeingRoad(m_CurrentLeftMaterial);
+		return !isSeeingRoad(m_CurrentLeftMaterial)&& isSeeingRoad(m_CurrentRightMaterial);
 	});
-	
-
+	selectNode->AddChild(scopingLeaf,
+	[this](){
+		return !isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
+	});
 	return selectNode;
 }
 
