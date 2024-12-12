@@ -18,6 +18,10 @@ enum class NPCType : uint8
 	Basic2LinesSmart UMETA(DisplayName = "Basic2LinesSmart"),
 	MiddleDriver UMETA(DisplayName = "MiddleDriver")
 };
+struct ScopingConfig
+{
+	float m_UnchangedDownRay;
+};
 UCLASS()
 class UE5_AI_BT_NPC_API ACPP_NPC : public ACharacter
 {
@@ -89,7 +93,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="NPC DATA")
 	int NPC_ID;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="NPC DATA")
-	float m_PercentageTrackComplete;
+	float m_PercentageTrackCurrent;
+
+	float m_RecordPercentageTrack;
 private:
 	CPP_BehaviourTree* m_BehaviourTree;
 	TWeakObjectPtr<UMaterialInterface> m_CurrentLeftMaterial;
@@ -99,6 +105,8 @@ private:
 	TOptional<FHitResult> m_CurrentHitResultRight;
 	
 	CPP_EvaluateNPC* m_EvaluateNPC;
+
+	ScopingConfig *m_ScopingConfig;
 	
 	static int NPC_IS_COUNT;
 	bool m_Turning = false;

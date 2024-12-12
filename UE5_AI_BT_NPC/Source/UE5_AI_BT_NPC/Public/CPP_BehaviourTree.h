@@ -12,6 +12,8 @@ public:
 	CPP_BehaviourTree();
 	~CPP_BehaviourTree();
 
+	void Init();
+
 	void SetRootNode(CPP_BaseNode* rootNode) { m_RootNode = rootNode; };
 	
 	void ExecuteTree();
@@ -20,4 +22,5 @@ public:
 	void RemoveChild(CPP_ControlNode* parent, CPP_BaseNode* child);
 private:
 	CPP_BaseNode* m_RootNode;
+	bool m_FirstTimeExecuting;
 };

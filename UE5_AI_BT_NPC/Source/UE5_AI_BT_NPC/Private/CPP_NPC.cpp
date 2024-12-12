@@ -3,6 +3,7 @@
 #include "CPP_LeafDriveLeft.h"
 #include "CPP_LeafDriveRight.h"
 #include "CPP_LeafScoping.h"
+#include "CPP_LeafTurnAround.h"
 #include "CPP_SequenceNode.h"
 #include "CPP_SelectorNode.h"
 #include "CPP_BehaviourTree.h"
@@ -181,9 +182,11 @@ void ACPP_NPC::SetPercentageTrackCompleet()
 {
 	float inputKey = m_Spline->FindInputKeyClosestToWorldLocation(GetActorLocation());
 	float distance = m_Spline->GetDistanceAlongSplineAtSplineInputKey(inputKey);
-	UE_LOG(LogTemp, Log, TEXT("Distance: %f"), distance);
 	float length = m_Spline->GetSplineLength();
-	m_PercentageTrackComplete = (distance / length) * 100;
+	m_PercentageTrackCurrent = (distance / length) * 100;
+
+	if(m_PercentageTrackCurrent > m_RecordPercentageTrack)
+		m_RecordPercentageTrack = m_PercentageTrackCurrent;
 }
 
 void ACPP_NPC::Finished(bool finish)
@@ -256,19 +259,37 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
 	CPP_SelectorNode* selectNode = new CPP_SelectorNode(this);
 	CPP_SequenceNode *sequenceNodeDriveleft = new CPP_SequenceNode(this);
 	CPP_SequenceNode *sequenceNodeDriveRight = new CPP_SequenceNode(this);
+	CPP_SequenceNode *sequenceNodeScoping = new CPP_SequenceNode(this);
 	CPP_LeafWalk* walkLeaf = new CPP_LeafWalk(this);
 	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this);
 	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this);
 	CPP_LeafScoping* scopingLeaf = new CPP_LeafScoping(this);
-
+	CPP_LeafTurnAround* turnAroundLeaf = new CPP_LeafTurnAround(this);
+	
 	sequenceNodeDriveleft->AddChild(walkLeaf);
 	sequenceNodeDriveleft->AddChild(driveLeftLeaf);
 	sequenceNodeDriveRight->AddChild(walkLeaf);
 	sequenceNodeDriveRight->AddChild(driveRightLeaf);
-	
-	m_Turning = false;
 
-	
+	m_ScopingConfig = new ScopingConfig();
+	sequenceNodeScoping->SetBeginNodeFunctionallity(
+		[this](){
+			m_ScopingConfig->m_UnchangedDownRay = m_DownRayMultiplier;
+			UE_LOG(LogTemp, Log, TEXT("DownRayStart: %f"), m_ScopingConfig->m_UnchangedDownRay);
+
+	});
+	sequenceNodeScoping->SetEndNodeFunctionallity(
+		[this](){
+			m_DownRayMultiplier = m_ScopingConfig->m_UnchangedDownRay;
+			UE_LOG(LogTemp, Log, TEXT("DownRayEND: %f"), m_ScopingConfig->m_UnchangedDownRay);
+	});
+	sequenceNodeScoping->AddChild(scopingLeaf);
+	sequenceNodeScoping->AddChild(sequenceNodeDriveleft);
+
+	selectNode->AddChild(turnAroundLeaf,
+	[this](){
+		return m_PercentageTrackCurrent < m_RecordPercentageTrack - 3;
+	});
 	selectNode->AddChild(walkLeaf,
 	[this](){
 		if(m_Turning)
@@ -278,6 +299,10 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
 			
 		return isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
 	});
+	selectNode->AddChild(sequenceNodeScoping,
+	[this](){
+		return !isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
+	});
 	selectNode->AddChild(sequenceNodeDriveleft,
 	[this](){
 		if(!m_Turning)
@@ -285,7 +310,7 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
 			m_Turning = true;
 			m_EvaluateNPC->HitBarrier();
 		}
-		return !isSeeingRoad(m_CurrentRightMaterial) && isSeeingRoad(m_CurrentLeftMaterial);
+		return !isSeeingRoad(m_CurrentRightMaterial) & isSeeingRoad(m_CurrentLeftMaterial);
 	});
 	selectNode->AddChild(sequenceNodeDriveRight,
 	[this](){
@@ -294,11 +319,7 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
 			m_Turning = true;
 			m_EvaluateNPC->HitBarrier();
 		}
-		return !isSeeingRoad(m_CurrentLeftMaterial)&& isSeeingRoad(m_CurrentRightMaterial);
-	});
-	selectNode->AddChild(scopingLeaf,
-	[this](){
-		return !isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
+		return !isSeeingRoad(m_CurrentLeftMaterial) & isSeeingRoad(m_CurrentRightMaterial);
 	});
 	return selectNode;
 }

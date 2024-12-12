@@ -13,7 +13,7 @@ public:
 	
 	void AddChild(CPP_BaseNode* child);
 	void RemoveChild(CPP_BaseNode* child);
-
+	
 private:
 	TArray<CPP_BaseNode*> m_Children;
 };
