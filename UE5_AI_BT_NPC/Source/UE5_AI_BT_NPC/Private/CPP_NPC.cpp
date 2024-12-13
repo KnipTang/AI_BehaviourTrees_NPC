@@ -205,14 +205,20 @@ void ACPP_NPC::ResetEvaluationFile()
 	m_EvaluateNPC->ResetFile();
 }
 
+FString ACPP_NPC::GetCurrentNodeName()
+{
+	UE_LOG(LogTemp, Display, TEXT("CurrentNode: %s"), *m_CurrentNode->m_NodeName);
+	return m_CurrentNode->m_NodeName;
+}
+
 CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
 {
-	CPP_SelectorNode* selectNode = new CPP_SelectorNode(this);
-	CPP_SequenceNode *sequenceNodeDriveleft = new CPP_SequenceNode(this);
-	CPP_SequenceNode *sequenceNodeDriveRight = new CPP_SequenceNode(this);
-	CPP_LeafWalk* walkLeaf = new CPP_LeafWalk(this);
-	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this);
-	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this);
+	CPP_SelectorNode* selectNode = new CPP_SelectorNode(this, "SelectMain");
+	CPP_SequenceNode *sequenceNodeDriveleft = new CPP_SequenceNode(this, "SequenceLeft");
+	CPP_SequenceNode *sequenceNodeDriveRight = new CPP_SequenceNode(this, "SequenceRight");
+	CPP_LeafWalk* walkLeaf = new CPP_LeafWalk(this, "LeafWalk");
+	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this, "LeafLeft");
+	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this, "LeafRight");
 	
 	sequenceNodeDriveleft->AddChild(walkLeaf);
 	sequenceNodeDriveleft->AddChild(driveLeftLeaf);
@@ -252,16 +258,16 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
 
 CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
 {
-	CPP_SelectorNode* selectNode = new CPP_SelectorNode(this);
-	CPP_SelectorNode* selectLeftOrRightNode = new CPP_SelectorNode(this);
-	CPP_SequenceNode *sequenceNodeDriveleft = new CPP_SequenceNode(this);
-	CPP_SequenceNode *sequenceNodeDriveRight = new CPP_SequenceNode(this);
-	CPP_SequenceNode *sequenceNodeScoping = new CPP_SequenceNode(this);
-	CPP_LeafWalk* walkLeaf = new CPP_LeafWalk(this);
-	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this);
-	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this);
-	CPP_LeafScoping* scopingLeaf = new CPP_LeafScoping(this);
-	CPP_LeafTurnAround* turnAroundLeaf = new CPP_LeafTurnAround(this);
+	CPP_SelectorNode* selectNode = new CPP_SelectorNode(this, "SelectMain");
+	CPP_SelectorNode* selectLeftOrRightNode = new CPP_SelectorNode(this, "SelectLeftOrRight");
+	CPP_SequenceNode *sequenceNodeDriveleft = new CPP_SequenceNode(this, "SequenceLeft");
+	CPP_SequenceNode *sequenceNodeDriveRight = new CPP_SequenceNode(this, "SequenceRight");
+	CPP_SequenceNode *sequenceNodeScoping = new CPP_SequenceNode(this, "SequenceScoping");
+	CPP_LeafWalk* walkLeaf = new CPP_LeafWalk(this, "LeafWalk");
+	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this, "LeafLeft");
+	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this, "LeafRight");
+	CPP_LeafScoping* scopingLeaf = new CPP_LeafScoping(this, "LeafScoping");
+	CPP_LeafTurnAround* turnAroundLeaf = new CPP_LeafTurnAround(this, "LeafTurnAround");
 	
 	sequenceNodeDriveleft->AddChild(walkLeaf);
 	sequenceNodeDriveleft->AddChild(driveLeftLeaf);
@@ -271,15 +277,14 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
 	sequenceNodeScoping->SetEndNodeFunctionallity(
 		[this](){
 			m_DownRayMultiplier = m_ScopingConfig.m_UnchangedDownRay;
-			UE_LOG(LogTemp, Display, TEXT("DownRayEND: %f"), m_ScopingConfig.m_UnchangedDownRay);
+			UE_LOG(LogTemp, Display, TEXT("DownRayEND: %f"), m_DownRayMultiplier);
 	});
 	sequenceNodeScoping->AddChild(scopingLeaf);
-	sequenceNodeScoping->AddChild(turnAroundLeaf);
-	sequenceNodeScoping->AddChild(sequenceNodeDriveleft);
+	sequenceNodeScoping->AddChild(driveLeftLeaf);
 
 	selectNode->AddChild(turnAroundLeaf,
 	[this](){
-		return m_PercentageTrackCurrent < m_RecordPercentageTrack - 2;
+		return m_PercentageTrackCurrent < m_RecordPercentageTrack - 0.01f;
 	});
 	selectNode->AddChild(walkLeaf,
 	[this](){
@@ -287,7 +292,7 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
 		{
 			m_Turning = false;
 		}
-			
+
 		return isSeeingRoadBoth(*m_CurrentLeftMaterial.Get(), *m_CurrentRightMaterial.Get());
 	});
 	selectNode->AddChild(sequenceNodeDriveleft,
@@ -297,7 +302,8 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
 			m_Turning = true;
 			m_EvaluateNPC->HitBarrier();
 		}
-		return !isSeeingRoad(*m_CurrentRightMaterial.Get()) && isSeeingRoad(*m_CurrentLeftMaterial.Get());
+		bool rtn = !isSeeingRoad(*m_CurrentRightMaterial.Get()) && isSeeingRoad(*m_CurrentLeftMaterial.Get());
+		return rtn;
 	});
 	selectNode->AddChild(sequenceNodeDriveRight,
 	[this](){
@@ -306,7 +312,8 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
 			m_Turning = true;
 			m_EvaluateNPC->HitBarrier();
 		}
-		return !isSeeingRoad(*m_CurrentLeftMaterial.Get()) && isSeeingRoad(*m_CurrentRightMaterial.Get());
+		bool rtn = !isSeeingRoad(*m_CurrentLeftMaterial.Get()) && isSeeingRoad(*m_CurrentRightMaterial.Get());
+		return rtn;
 	});
 	selectNode->AddChild(sequenceNodeScoping,
 	[this](){

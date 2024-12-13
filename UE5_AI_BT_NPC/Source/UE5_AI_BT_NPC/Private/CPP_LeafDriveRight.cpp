@@ -1,8 +1,8 @@
 #include "CPP_LeafDriveRight.h"
 #include "CPP_NPC.h"
 
-CPP_LeafDriveRight::CPP_LeafDriveRight(ACPP_NPC* npc) :
-	CPP_LeafNode(npc, 4)
+CPP_LeafDriveRight::CPP_LeafDriveRight(ACPP_NPC* npc, FString name) :
+	CPP_LeafNode(npc, name)
 {
 }
 

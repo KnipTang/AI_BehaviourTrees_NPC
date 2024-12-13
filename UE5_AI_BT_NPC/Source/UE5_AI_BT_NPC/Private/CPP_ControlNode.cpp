@@ -1,7 +1,7 @@
 #include "CPP_ControlNode.h"
 
-CPP_ControlNode::CPP_ControlNode(ACPP_NPC* npc, int type) :
-	CPP_BaseNode(npc, type)
+CPP_ControlNode::CPP_ControlNode(ACPP_NPC* npc, FString name) :
+	CPP_BaseNode(npc, name)
 {
 	m_LastSelectedNode = nullptr;
 }
@@ -29,7 +29,7 @@ void CPP_ControlNode::ChangeExecutionNode(CPP_BaseNode* newNode)
 		newNode->BeginNode();
 		m_LastSelectedNode = newNode;
 	}
-	else if(m_LastSelectedNode->m_NodeType != newNode->m_NodeType)
+	else if(m_LastSelectedNode->m_NodeName != newNode->m_NodeName)
 	{
 		m_LastSelectedNode->EndNode();
 		newNode->BeginNode();

@@ -10,7 +10,7 @@
 class UE5_AI_BT_NPC_API CPP_LeafScoping final : public CPP_LeafNode
 {
 public:
-	CPP_LeafScoping(ACPP_NPC* npc);
+	CPP_LeafScoping(ACPP_NPC* npc, FString name);
 	~CPP_LeafScoping();
 	
 	void ExecuteNode() override;

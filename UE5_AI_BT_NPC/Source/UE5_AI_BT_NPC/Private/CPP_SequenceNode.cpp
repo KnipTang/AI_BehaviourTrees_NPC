@@ -1,7 +1,7 @@
 #include "CPP_SequenceNode.h"
 
-CPP_SequenceNode::CPP_SequenceNode(ACPP_NPC* npc) :
-	CPP_ControlNode(npc, 1)
+CPP_SequenceNode::CPP_SequenceNode(ACPP_NPC* npc, FString name) :
+	CPP_ControlNode(npc, name)
 {
 }
 

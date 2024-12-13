@@ -6,7 +6,7 @@
 class UE5_AI_BT_NPC_API CPP_ControlNode : public CPP_BaseNode
 {
 public:
-	CPP_ControlNode(ACPP_NPC* npc, int type);
+	CPP_ControlNode(ACPP_NPC* npc, FString name);
 	~CPP_ControlNode();
 
 	virtual void BeginNode() override;

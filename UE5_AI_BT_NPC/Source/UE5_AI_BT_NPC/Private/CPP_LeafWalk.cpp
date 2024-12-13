@@ -4,8 +4,8 @@
 #include "CPP_LeafWalk.h"
 #include "CPP_NPC.h"
 
-CPP_LeafWalk::CPP_LeafWalk(ACPP_NPC* npc) :
-	CPP_LeafNode(npc, 3)
+CPP_LeafWalk::CPP_LeafWalk(ACPP_NPC* npc, FString name) :
+	CPP_LeafNode(npc, name)
 {
 }
 

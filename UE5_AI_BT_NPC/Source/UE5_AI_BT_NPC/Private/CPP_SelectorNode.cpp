@@ -2,8 +2,8 @@
 
 #include "CPP_LeafNode.h"
 
-CPP_SelectorNode::CPP_SelectorNode(ACPP_NPC* npc) :
-	CPP_ControlNode(npc, 2)
+CPP_SelectorNode::CPP_SelectorNode(ACPP_NPC* npc, FString name) :
+	CPP_ControlNode(npc, name)
 {
 }
 

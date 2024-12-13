@@ -61,7 +61,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "NPC Functions")
 	void ResetEvaluationFile();
-	
+
+	UFUNCTION(BlueprintCallable, Category = "NPC Functions")
+	FString GetCurrentNodeName();
+
 	float GetRotationAngle() {return m_RotationAngle;}
 private:
 	FHitResult* GetHitResult(FVector start, FVector end); 
@@ -100,19 +103,21 @@ public:
 	int NPC_ID;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="NPC DATA")
 	float m_PercentageTrackCurrent;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="NPC DATA")
+	TWeakObjectPtr<UMaterialInterface> m_CurrentLeftMaterial;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="NPC DATA")
+	TWeakObjectPtr<UMaterialInterface> m_CurrentRightMaterial;
+
+	CPP_BaseNode* m_CurrentNode;
 	
 	float m_RecordPercentageTrack;
 private:
 	CPP_BehaviourTree* m_BehaviourTree;
-	TWeakObjectPtr<UMaterialInterface> m_CurrentLeftMaterial;
-	TWeakObjectPtr<UMaterialInterface> m_CurrentRightMaterial;
 	
 	TOptional<FHitResult> m_CurrentHitResultLeft;
 	TOptional<FHitResult> m_CurrentHitResultRight;
 	
 	CPP_EvaluateNPC* m_EvaluateNPC;
-
-	CPP_BaseNode* m_CurrentNode;
 	
 	static int NPC_IS_COUNT;
 	bool m_Turning = false;

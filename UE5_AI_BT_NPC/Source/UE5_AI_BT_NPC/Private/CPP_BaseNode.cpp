@@ -1,9 +1,9 @@
 #include "CPP_BaseNode.h"
 #include "CPP_NPC.h"
 
-CPP_BaseNode::CPP_BaseNode(ACPP_NPC* npc, int type) :
+CPP_BaseNode::CPP_BaseNode(ACPP_NPC* npc, FString nodeName) :
 	m_NPC(npc),
-	m_NodeType(type)
+	m_NodeName(nodeName)
 {
 }
 

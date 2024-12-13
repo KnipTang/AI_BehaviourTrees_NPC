@@ -6,7 +6,7 @@
 class UE5_AI_BT_NPC_API CPP_SequenceNode : public CPP_ControlNode
 {
 public:
-	CPP_SequenceNode(ACPP_NPC* npc);
+	CPP_SequenceNode(ACPP_NPC* npc, FString name);
 	~CPP_SequenceNode();
 
 	void ExecuteNode() override;
