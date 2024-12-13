@@ -9,8 +9,8 @@ public:
 	CPP_ControlNode(ACPP_NPC* npc, int type);
 	~CPP_ControlNode();
 
-	virtual void BeginNode() override { if(m_BeginNodeFunction) m_BeginNodeFunction(); }
-	virtual void EndNode() override { if(m_EndNodeFunction) m_EndNodeFunction(); }
+	virtual void BeginNode() override;
+	virtual void EndNode() override;
 	
 	void AddChild(CPP_BaseNode* child) {};
 	void RemoveChild(CPP_BaseNode* child) {};
@@ -18,7 +18,7 @@ public:
 	void SetBeginNodeFunctionallity(const TFunction<void()>& function) { m_BeginNodeFunction = function; }
 	void SetEndNodeFunctionallity(const TFunction<void()>& function) { m_EndNodeFunction = function; }
 protected:
-	void ChangeExecutionNode(CPP_BaseNode* child);
+	void ChangeExecutionNode(CPP_BaseNode* newNode);
 protected:
 	TArray<CPP_BaseNode*> m_Children;
 

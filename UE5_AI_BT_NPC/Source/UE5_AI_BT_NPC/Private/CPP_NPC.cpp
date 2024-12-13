@@ -21,20 +21,20 @@ bool isFalse(bool value)
 	return value;
 }
 
-bool isSeeingRoad(TWeakObjectPtr<UMaterialInterface> mat)
+bool isSeeingRoad(UMaterialInterface& mat)
 {
-	if (!mat.IsValid())
+	if (!mat.IsValidLowLevel())
 		return false;
-	if (mat.IsValid())
+	if (mat.IsValidLowLevel())
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Mat: %s"), *mat->GetName());
 	}
-	if(mat->GetName() == "road" || mat->GetName() == "MAT_Allowed")
+	if(mat.GetName() == "road" || mat.GetName() == "MAT_Allowed")
 		return true;
 	return false;
 }
 
-bool isSeeingRoadBoth(TWeakObjectPtr<UMaterialInterface> mat, TWeakObjectPtr<UMaterialInterface> mat2)
+bool isSeeingRoadBoth(UMaterialInterface& mat, UMaterialInterface& mat2)
 {
 	return isSeeingRoad(mat) && isSeeingRoad(mat2);
 }
@@ -60,8 +60,6 @@ ACPP_NPC::~ACPP_NPC()
 void ACPP_NPC::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//m_EvaluateNPC->ResetFile();
 	
 	if (GetCharacterMovement())
 	{
@@ -108,6 +106,7 @@ void ACPP_NPC::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void ACPP_NPC::StartDriving()
 {
 	m_Driving = !m_Driving;
+	m_ScopingConfig.m_UnchangedDownRay = m_DownRayMultiplier;
 }
 
 void ACPP_NPC::SetNPCType(NPCType npcType)
@@ -119,9 +118,6 @@ void ACPP_NPC::SetNPCType(NPCType npcType)
 		break;
 	case NPCType::Basic2LinesSmart:
 		m_BehaviourTree->SetRootNode(NPCtype_Basic2LineSmart());
-		break;
-	case NPCType::MiddleDriver:
-		m_BehaviourTree->SetRootNode(NPCtype_MiddleDriver());
 		break;
 	}
 }
@@ -230,7 +226,7 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
 				m_Turning = false;
 			}
 
-			return isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
+			return isSeeingRoadBoth(*m_CurrentLeftMaterial.Get(), *m_CurrentRightMaterial.Get());
 		});
 	selectNode->AddChild(sequenceNodeDriveleft,
 	[this](){
@@ -239,7 +235,7 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
 			m_Turning = true;
 			m_EvaluateNPC->HitBarrier();
 		}
-		return !isSeeingRoad(m_CurrentRightMaterial);
+		return !isSeeingRoad(*m_CurrentRightMaterial.Get());
 	});
 	selectNode->AddChild(sequenceNodeDriveRight,
 	[this](){
@@ -248,7 +244,7 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
 			m_Turning = true;
 			m_EvaluateNPC->HitBarrier();
 		}
-		return !isSeeingRoad(m_CurrentLeftMaterial);
+		return !isSeeingRoad(*m_CurrentLeftMaterial.Get());
 	});
 
 	return selectNode;
@@ -257,6 +253,7 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2Line()
 CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
 {
 	CPP_SelectorNode* selectNode = new CPP_SelectorNode(this);
+	CPP_SelectorNode* selectLeftOrRightNode = new CPP_SelectorNode(this);
 	CPP_SequenceNode *sequenceNodeDriveleft = new CPP_SequenceNode(this);
 	CPP_SequenceNode *sequenceNodeDriveRight = new CPP_SequenceNode(this);
 	CPP_SequenceNode *sequenceNodeScoping = new CPP_SequenceNode(this);
@@ -270,25 +267,19 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
 	sequenceNodeDriveleft->AddChild(driveLeftLeaf);
 	sequenceNodeDriveRight->AddChild(walkLeaf);
 	sequenceNodeDriveRight->AddChild(driveRightLeaf);
-
-	m_ScopingConfig = new ScopingConfig();
-	sequenceNodeScoping->SetBeginNodeFunctionallity(
-		[this](){
-			m_ScopingConfig->m_UnchangedDownRay = m_DownRayMultiplier;
-			UE_LOG(LogTemp, Log, TEXT("DownRayStart: %f"), m_ScopingConfig->m_UnchangedDownRay);
-
-	});
+	
 	sequenceNodeScoping->SetEndNodeFunctionallity(
 		[this](){
-			m_DownRayMultiplier = m_ScopingConfig->m_UnchangedDownRay;
-			UE_LOG(LogTemp, Log, TEXT("DownRayEND: %f"), m_ScopingConfig->m_UnchangedDownRay);
+			m_DownRayMultiplier = m_ScopingConfig.m_UnchangedDownRay;
+			UE_LOG(LogTemp, Display, TEXT("DownRayEND: %f"), m_ScopingConfig.m_UnchangedDownRay);
 	});
 	sequenceNodeScoping->AddChild(scopingLeaf);
+	sequenceNodeScoping->AddChild(turnAroundLeaf);
 	sequenceNodeScoping->AddChild(sequenceNodeDriveleft);
 
 	selectNode->AddChild(turnAroundLeaf,
 	[this](){
-		return m_PercentageTrackCurrent < m_RecordPercentageTrack - 3;
+		return m_PercentageTrackCurrent < m_RecordPercentageTrack - 2;
 	});
 	selectNode->AddChild(walkLeaf,
 	[this](){
@@ -297,90 +288,63 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
 			m_Turning = false;
 		}
 			
-		return isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
+		return isSeeingRoadBoth(*m_CurrentLeftMaterial.Get(), *m_CurrentRightMaterial.Get());
+	});
+	selectNode->AddChild(sequenceNodeDriveleft,
+	[this](){
+		if(!m_Turning)
+		{
+			m_Turning = true;
+			m_EvaluateNPC->HitBarrier();
+		}
+		return !isSeeingRoad(*m_CurrentRightMaterial.Get()) && isSeeingRoad(*m_CurrentLeftMaterial.Get());
+	});
+	selectNode->AddChild(sequenceNodeDriveRight,
+	[this](){
+		if(!m_Turning)
+		{
+			m_Turning = true;
+			m_EvaluateNPC->HitBarrier();
+		}
+		return !isSeeingRoad(*m_CurrentLeftMaterial.Get()) && isSeeingRoad(*m_CurrentRightMaterial.Get());
 	});
 	selectNode->AddChild(sequenceNodeScoping,
 	[this](){
-		return !isSeeingRoadBoth(m_CurrentLeftMaterial, m_CurrentRightMaterial);
+		FVector end = GetActorLocation() +  FVector::CrossProduct(GetActorRightVector(),GetActorForwardVector()-500);
+		FHitResult* hitResult = GetHitResult(GetActorLocation(),end);
+		TWeakObjectPtr<UMaterialInterface> hitMat;
+		if (hitResult)
+		{
+			TWeakObjectPtr<UPrimitiveComponent> comp = hitResult->Component;
+			if(comp != nullptr)
+			{
+			hitMat = comp->GetMaterial(0);
+		}
+	}
+	bool rtn = !isSeeingRoadBoth(*m_CurrentLeftMaterial.Get(), *m_CurrentRightMaterial.Get()) && !isSeeingRoad(*hitMat);
+	return rtn;
 	});
-	selectNode->AddChild(sequenceNodeDriveleft,
+	
+	selectLeftOrRightNode->AddChild(driveLeftLeaf,
+		[this](){
+			float leftRayLength = FVector::Dist(GetActorLocation(), m_CurrentHitResultLeft->Location);
+			float rightRayLength = FVector::Dist(GetActorLocation(), m_CurrentHitResultRight->Location);
+		return leftRayLength >= rightRayLength;
+	});
+	selectLeftOrRightNode->AddChild(driveRightLeaf,
+		[this](){
+			float leftRayLength = FVector::Dist(GetActorLocation(), m_CurrentHitResultLeft->Location);
+			float rightRayLength = FVector::Dist(GetActorLocation(), m_CurrentHitResultRight->Location);
+		return rightRayLength > leftRayLength;
+	});
+	selectNode->AddChild(selectLeftOrRightNode,
 	[this](){
 		if(!m_Turning)
 		{
 			m_Turning = true;
 			m_EvaluateNPC->HitBarrier();
 		}
-		return !isSeeingRoad(m_CurrentRightMaterial) & isSeeingRoad(m_CurrentLeftMaterial);
+		return !isSeeingRoadBoth(*m_CurrentLeftMaterial.Get(), *m_CurrentRightMaterial.Get());
 	});
-	selectNode->AddChild(sequenceNodeDriveRight,
-	[this](){
-		if(!m_Turning)
-		{
-			m_Turning = true;
-			m_EvaluateNPC->HitBarrier();
-		}
-		return !isSeeingRoad(m_CurrentLeftMaterial) & isSeeingRoad(m_CurrentRightMaterial);
-	});
-	return selectNode;
-}
-
-CPP_BaseNode* ACPP_NPC::NPCtype_MiddleDriver()
-{
-	CPP_SelectorNode* selectNode = new CPP_SelectorNode(this);
-	CPP_SequenceNode *sequenceNodeDriveleft = new CPP_SequenceNode(this);
-	CPP_SequenceNode *sequenceNodeDriveRight = new CPP_SequenceNode(this);
-	CPP_LeafWalk* walkLeaf = new CPP_LeafWalk(this);
-	CPP_LeafDriveLeft* driveLeftLeaf = new CPP_LeafDriveLeft(this);
-	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this);
-
-	sequenceNodeDriveleft->AddChild(driveLeftLeaf);
-	sequenceNodeDriveleft->AddChild(walkLeaf);
-	sequenceNodeDriveRight->AddChild(driveRightLeaf);
-	sequenceNodeDriveRight->AddChild(walkLeaf);
-	
-	float CurrentTurn = 0.0f;
-	
-	selectNode->AddChild(walkLeaf,
-	[this, &CurrentTurn](){
-		if (m_CurrentHitResultLeft.IsSet() && m_CurrentHitResultRight.IsSet())
-		{
-			CurrentTurn = 0.f;
-			
-			constexpr int offset = 100;
-			float leftDistance = m_CurrentHitResultLeft.GetValue().Distance;
-			float rightDistance = m_CurrentHitResultRight.GetValue().Distance;
-			UE_LOG(LogTemp, Display, TEXT("leftDistance: %f"), leftDistance);
-			UE_LOG(LogTemp, Display, TEXT("rightDistance: %f"), rightDistance);
-			return FMath::Abs(leftDistance - rightDistance) <= offset;
-		}
-		return false;
-	});
-	selectNode->AddChild(sequenceNodeDriveleft,
-	[this, &CurrentTurn](){
-		if (m_CurrentHitResultLeft.IsSet() && m_CurrentHitResultRight.IsSet())
-		{
-			float leftDistance = m_CurrentHitResultLeft.GetValue().Distance;
-			float rightDistance = m_CurrentHitResultRight.GetValue().Distance;
-
-			CurrentTurn -= 15;
-			
-			return leftDistance > rightDistance && CurrentTurn > -30;
-		}
-		return false;
-		});
-	selectNode->AddChild(sequenceNodeDriveRight,
-	[this, &CurrentTurn](){
-		  if (m_CurrentHitResultLeft.IsSet() && m_CurrentHitResultRight.IsSet())
-		  {
-			  float leftDistance = m_CurrentHitResultLeft.GetValue().Distance;
-			  float rightDistance = m_CurrentHitResultRight.GetValue().Distance;
-
-		  	  CurrentTurn += 15;
-		  	
-			  return rightDistance > leftDistance && CurrentTurn < 30;
-		  }
-		  return false;
-	});
-
 	return selectNode;
 }

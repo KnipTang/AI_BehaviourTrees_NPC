@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Components/SplineComponent.h"
 #include "CPP_NPC.generated.h"
+
 class CPP_BehaviourTree;
 class CPP_EvaluateNPC;
 class CPP_BaseNode;
@@ -16,12 +17,16 @@ enum class NPCType : uint8
 {
 	Basic2Lines UMETA(DisplayName = "Basic2Lines"),
 	Basic2LinesSmart UMETA(DisplayName = "Basic2LinesSmart"),
-	MiddleDriver UMETA(DisplayName = "MiddleDriver")
 };
-struct ScopingConfig
+
+USTRUCT(BlueprintType)
+struct FScopingConfig
 {
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scoping")
 	float m_UnchangedDownRay;
 };
+
 UCLASS()
 class UE5_AI_BT_NPC_API ACPP_NPC : public ACharacter
 {
@@ -66,7 +71,6 @@ private:
 	
 	CPP_BaseNode* NPCtype_Basic2Line();
 	CPP_BaseNode* NPCtype_Basic2LineSmart();
-	CPP_BaseNode* NPCtype_MiddleDriver();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rays")
@@ -86,6 +90,8 @@ public:
 	float m_RotationAngle = 30;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Settings")
 	float m_DownRayMultiplier = 0.7f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Settings")
+	FScopingConfig m_ScopingConfig;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spline")
 	TWeakObjectPtr<USplineComponent> m_Spline;
@@ -94,7 +100,7 @@ public:
 	int NPC_ID;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="NPC DATA")
 	float m_PercentageTrackCurrent;
-
+	
 	float m_RecordPercentageTrack;
 private:
 	CPP_BehaviourTree* m_BehaviourTree;
@@ -106,7 +112,7 @@ private:
 	
 	CPP_EvaluateNPC* m_EvaluateNPC;
 
-	ScopingConfig *m_ScopingConfig;
+	CPP_BaseNode* m_CurrentNode;
 	
 	static int NPC_IS_COUNT;
 	bool m_Turning = false;

@@ -20,7 +20,6 @@ void CPP_SelectorNode::ExecuteNode()
 		if(conditionResult)
 		{
 			ChangeExecutionNode(child.Key);
-			
 			child.Key->ExecuteNode();
 			return;
 		}
