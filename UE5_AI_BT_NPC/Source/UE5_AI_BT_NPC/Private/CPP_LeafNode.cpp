@@ -13,5 +13,4 @@ CPP_LeafNode::~CPP_LeafNode()
 void CPP_LeafNode::SetCurrentNode()
 {
 	m_NPC->m_CurrentNode = this;
-	m_NPC->GetCurrentNodeName();
 }
