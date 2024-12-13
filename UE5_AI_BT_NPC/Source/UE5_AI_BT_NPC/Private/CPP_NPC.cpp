@@ -11,15 +11,7 @@
 #include "Components/SplineComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-bool isTrue()
-{
-	return true;
-}
-
-bool isFalse(bool value)
-{
-	return value;
-}
+#include "CPP_LeafResetFlipped.h"
 
 bool isSeeingRoad(UMaterialInterface& mat)
 {
@@ -267,6 +259,7 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
 	CPP_LeafDriveRight* driveRightLeaf = new CPP_LeafDriveRight(this, "LeafRight");
 	CPP_LeafScoping* scopingLeaf = new CPP_LeafScoping(this, "LeafScoping");
 	CPP_LeafTurnAround* turnAroundLeaf = new CPP_LeafTurnAround(this, "LeafTurnAround");
+	CPP_LeafResetFlipped* resetFlippedLeaf = new CPP_LeafResetFlipped(this, "LeafResetFlipped");
 	
 	sequenceNodeDriveLeft->AddChild(driveLeaf);
 	sequenceNodeDriveLeft->AddChild(driveLeftLeaf);
@@ -280,6 +273,12 @@ CPP_BaseNode* ACPP_NPC::NPCtype_Basic2LineSmart()
 	sequenceNodeScoping->AddChild(scopingLeaf);
 	sequenceNodeScoping->AddChild(sequenceNodeDriveLeft);
 
+	selectNode->AddChild(resetFlippedLeaf,
+	[this](){
+		bool rsl = GetActorRotation().Roll > 90 || GetActorRotation().Roll < -90;
+		UE_LOG(LogTemp, Display, TEXT("Rot: %f Result:%i"), GetActorRotation().Roll, rsl);
+		return GetActorRotation().Roll > 90 || GetActorRotation().Roll < -90;
+	});
 	selectNode->AddChild(turnAroundLeaf,
 	[this](){
 		return m_PercentageTrackCurrent < m_RecordPercentageTrack - 0.1f;
