@@ -28,5 +28,5 @@ void CPP_LeafScoping::ExecuteNode()
 	//	m_NPC->m_DownRayMultiplier += m_RayIncrement;
 	//	if(m_NPC->m_DownRayMultiplier >= 1.f) m_GoingUp = false;
 	//}
-	m_NPC->m_DownRayMultiplier = FMath::RandRange(0.2f, 0.4f);
+	m_NPC->m_DownRayMultiplier = FMath::RandRange(0.8f, 2.f);
 }

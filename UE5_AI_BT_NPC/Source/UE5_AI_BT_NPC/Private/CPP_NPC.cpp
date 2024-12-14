@@ -134,7 +134,7 @@ FHitResult* ACPP_NPC::GetHitResult(FVector start, FVector end)
 		FColor LineColor = bHit ? FColor::Green : FColor::Red;
 		if(LineColor == FColor::Red)
 			LineColor = FColor::Green;
-			
+		
 		DrawDebugLine(
 			GetWorld(),
 			start,
