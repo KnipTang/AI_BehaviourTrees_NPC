@@ -15,6 +15,4 @@ public:
 	
 	void ExecuteNode() override;
 private:
-	float m_RayIncrement;
-	bool m_GoingUp;
 };

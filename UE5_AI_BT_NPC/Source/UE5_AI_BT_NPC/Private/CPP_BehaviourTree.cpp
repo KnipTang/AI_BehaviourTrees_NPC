@@ -24,20 +24,25 @@ void CPP_BehaviourTree::Init()
 
 void CPP_BehaviourTree::ExecuteTree()
 {
-	if(m_FirstTimeExecuting)
+	if(m_RootNode != nullptr)
 	{
-		m_RootNode->BeginNode();
-		m_FirstTimeExecuting = false;
+		if(m_FirstTimeExecuting)
+		{
+			m_RootNode->BeginNode();
+			m_FirstTimeExecuting = false;
+		}
+		m_RootNode->ExecuteNode();
 	}
-	m_RootNode->ExecuteNode();
 }
 
 void CPP_BehaviourTree::AddChild(CPP_ControlNode* parent, CPP_BaseNode* child)
 {
-	parent->AddChild(child);
+	if(child != nullptr && parent != nullptr)
+		parent->AddChild(child);
 }
 
 void CPP_BehaviourTree::RemoveChild(CPP_ControlNode* parent, CPP_BaseNode* child)
 {
-	parent->RemoveChild(child);
+	if(child != nullptr && parent != nullptr)
+		parent->RemoveChild(child);
 }
